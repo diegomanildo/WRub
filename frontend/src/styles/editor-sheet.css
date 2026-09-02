@@ -1,0 +1,142 @@
+/* ==========================================================================
+   Editor — hoja de papel + tipografía del documento
+   ========================================================================== */
+.editor-scroll {
+  padding: 0 16px 80px;
+}
+
+.editor-content {
+  width: 100%;
+  max-width: 816px;   /* 8.5in a 96dpi — igual que Google Docs */
+  margin: 0 auto;
+  background-color: var(--c-surface);
+  border: 1px solid var(--c-border);
+  border-radius: 2px;
+  box-shadow: var(--sh-soft);
+  padding: 72px 84px;
+  min-height: 1056px; /* 11in */
+  /* display:flex + flex:1 en el .ProseMirror de abajo (en vez de
+     min-height:100%) es lo que hace que el área editable ocupe todo el
+     alto de la hoja: un min-height porcentual en el hijo no se resuelve
+     contra el min-height del padre cuando el padre no tiene una altura
+     explícita (auto), así que sin esto el click en el espacio en blanco
+     debajo del texto caía fuera del contentEditable y no hacía nada. */
+  display: flex;
+  flex-direction: column;
+
+  /* Fuente y tamaño base del documento, y el resto de la tipografía.
+     Anidado con PostCSS (postcss-nested) para no repetir
+     ".editor-content .ProseMirror ..." en cada regla — el CSS final que
+     llega al navegador es idéntico al de antes, solo cambia cómo se
+     escribe acá. */
+  .ProseMirror {
+    outline: none;
+    flex: 1;
+    width: 100%;
+    color: var(--c-text);
+    /* Los selectores de la toolbar sobrescriben esto con spans; "Arial" y
+       "11" en esos menús quitan el override y vuelven acá. En puntos
+       porque la hoja se exporta a PDF. */
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 11pt;
+    line-height: 1.7;
+
+    > * + * {
+      margin-top: 0.85em;
+    }
+
+    h1,
+    h2,
+    h3 {
+      font-weight: 600;
+
+      &:first-child {
+        margin-top: 0;
+      }
+    }
+
+    h1 {
+      font-size: 20pt;
+      line-height: 1.25;
+      margin-top: 1.4em;
+    }
+
+    h2 {
+      font-size: 16pt;
+      line-height: 1.3;
+      margin-top: 1.3em;
+    }
+
+    h3 {
+      font-size: 13pt;
+      line-height: 1.35;
+      margin-top: 1.2em;
+    }
+
+    ul,
+    ol {
+      padding-left: 1.5em;
+    }
+
+    li p {
+      margin: 0;
+    }
+
+    blockquote {
+      border-left: 3px solid var(--c-border-strong);
+      padding-left: 1em;
+      color: var(--c-text-secondary);
+      font-style: italic;
+    }
+
+    code {
+      font-family: "Roboto Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size: 0.88em;
+      background-color: var(--c-surface-sunken);
+      padding: 0.15em 0.35em;
+      border-radius: 4px;
+    }
+
+    pre {
+      background-color: #202124;
+      color: #e8eaed;
+      padding: 14px 16px;
+      border-radius: var(--r-md);
+      overflow-x: auto;
+
+      code {
+        background: none;
+        color: inherit;
+        padding: 0;
+      }
+    }
+
+    hr {
+      border: none;
+      border-top: 1px solid var(--c-border);
+    }
+
+    p.is-editor-empty:first-child::before {
+      content: attr(data-placeholder);
+      color: var(--c-text-muted);
+      float: left;
+      height: 0;
+      pointer-events: none;
+    }
+  }
+}
+
+@media (max-width: 720px) {
+  .editor-content {
+    padding: 36px 24px;
+    min-height: 60vh;
+  }
+}
+
+/* El documento compartido (/compartir/:token) no es editable: sin caret,
+   sin cursor de texto, para que se sienta como lectura y no confunda al
+   amigo que lo abre. */
+.editor-content-readonly .ProseMirror {
+  cursor: default;
+  caret-color: transparent;
+}

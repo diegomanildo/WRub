@@ -1,0 +1,146 @@
+/* ==========================================================================
+   Layout — app shell, topbar, buscador
+   ========================================================================== */
+.app-shell {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+/* ----- Topbar ----- */
+.topbar {
+  height: var(--topbar-h);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 16px;
+  background-color: var(--c-bg);
+  flex-shrink: 0;
+  position: sticky;
+  top: 0;
+  z-index: 30;
+}
+
+.topbar-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+  color: var(--c-text);
+  padding-right: 12px;
+  flex-shrink: 0;
+}
+
+.topbar-logo {
+  width: 36px;
+  height: 36px;
+  display: grid;
+  place-items: center;
+  border-radius: var(--r-md);
+  background: linear-gradient(135deg, #1a73e8, #7b5cff);
+  color: #fff;
+  flex-shrink: 0;
+}
+
+.topbar-name {
+  font-size: 1.32rem;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  color: var(--c-text-secondary);
+}
+
+/* Buscador estilo Drive */
+.search-field {
+  flex: 1;
+  max-width: 720px;
+  margin: 0 12px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  height: 46px;
+  padding: 0 14px;
+  border-radius: var(--r-lg);
+  background-color: var(--c-surface-sunken);
+  color: var(--c-text-secondary);
+  border: 1px solid transparent;
+  transition: background-color 0.15s var(--ease), box-shadow 0.15s var(--ease);
+}
+
+.search-field:focus-within {
+  background-color: var(--c-bg);
+  box-shadow: var(--sh-1);
+  border-color: transparent;
+}
+
+.search-field input {
+  flex: 1;
+  border: none;
+  background: transparent;
+  outline: none;
+  font-size: 0.95rem;
+  color: var(--c-text);
+  min-width: 0;
+}
+
+.search-field input::placeholder {
+  color: var(--c-text-secondary);
+}
+
+.search-clear {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border: none;
+  background: transparent;
+  border-radius: 50%;
+  color: var(--c-text-secondary);
+  flex-shrink: 0;
+}
+
+.search-clear:hover {
+  background-color: rgba(60, 64, 67, 0.08);
+}
+
+/* ----- Contenido ----- */
+.btn-create {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  height: 40px;
+  padding: 0 18px 0 14px;
+  flex-shrink: 0;
+  border: none;
+  border-radius: var(--r-xl);
+  background-color: var(--c-bg);
+  color: var(--c-text);
+  font-size: 0.88rem;
+  font-weight: 500;
+  box-shadow: var(--sh-1);
+  transition: box-shadow 0.15s var(--ease), background-color 0.15s var(--ease);
+}
+
+.btn-create:hover:not(:disabled) {
+  box-shadow: var(--sh-2);
+  background-color: #f8fafd;
+}
+
+.btn-create:disabled {
+  opacity: 0.6;
+  box-shadow: none;
+  cursor: default;
+}
+
+.app-main {
+  flex: 1;
+  min-height: 0;
+  background-color: var(--c-bg-subtle);
+  border-top: 1px solid var(--c-border);
+  overflow-y: auto;
+}
+
+@media (max-width: 900px) {
+  .topbar-name {
+    display: none;
+  }
+}

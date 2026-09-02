@@ -1,0 +1,145 @@
+/* ==========================================================================
+   Menú contextual, estados vacíos, botones genéricos
+   (compartido por toda la app: cards, popovers de la toolbar, etc.)
+   ========================================================================== */
+.menu-anchor {
+  position: relative;
+}
+
+.menu {
+  position: absolute;
+  top: calc(100% + 4px);
+  right: 0;
+  z-index: 40;
+  min-width: 180px;
+  padding: 8px 0;
+  background-color: var(--c-surface);
+  border-radius: var(--r-md);
+  box-shadow: var(--sh-2);
+  animation: menu-in 0.12s var(--ease);
+}
+
+@keyframes menu-in {
+  from { opacity: 0; transform: scale(0.97) translateY(-4px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+.menu-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 9px 20px;
+  border: none;
+  background: none;
+  font-size: 0.86rem;
+  text-align: left;
+  color: var(--c-text);
+}
+
+.menu-item:hover {
+  background-color: var(--c-surface-hover);
+}
+
+.menu-item-danger {
+  color: var(--c-danger);
+}
+
+.menu-item-danger:hover {
+  background-color: var(--c-danger-soft);
+}
+
+/* ===== Estados vacíos ===== */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 88px 24px;
+  color: var(--c-text-secondary);
+}
+
+.empty-state-icon {
+  width: 76px;
+  height: 76px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background-color: var(--c-primary-soft);
+  color: var(--c-primary-text);
+  margin-bottom: 20px;
+}
+
+.empty-state-title {
+  font-size: 1.05rem;
+  font-weight: 500;
+  color: var(--c-text);
+  margin: 0 0 6px;
+}
+
+.empty-state-text {
+  margin: 0 0 22px;
+  font-size: 0.86rem;
+  max-width: 380px;
+}
+
+/* ===== Botones genéricos ===== */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 38px;
+  padding: 0 22px;
+  border: none;
+  border-radius: var(--r-pill);
+  font-size: 0.86rem;
+  font-weight: 500;
+  transition: background-color 0.12s var(--ease), box-shadow 0.12s var(--ease);
+}
+
+.btn:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.btn-primary {
+  background-color: var(--c-primary);
+  color: #fff;
+}
+
+.btn-primary:hover:not(:disabled) {
+  background-color: var(--c-primary-hover);
+  box-shadow: var(--sh-1);
+}
+
+.btn-ghost {
+  background-color: transparent;
+  color: var(--c-primary-text);
+}
+
+.btn-ghost:hover:not(:disabled) {
+  background-color: var(--c-primary-soft);
+}
+
+.btn-danger {
+  background-color: var(--c-danger);
+  color: #fff;
+}
+
+.btn-danger:hover:not(:disabled) {
+  background-color: var(--c-danger-hover);
+}
+
+.btn-sm {
+  height: 32px;
+  padding: 0 12px;
+  font-size: 0.78rem;
+  background-color: var(--c-primary);
+  color: #fff;
+  flex-shrink: 0;
+}
+
+.btn-sm:hover:not(:disabled) {
+  background-color: var(--c-primary-hover);
+}

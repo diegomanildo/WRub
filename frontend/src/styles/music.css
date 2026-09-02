@@ -1,0 +1,324 @@
+/* ==========================================================================
+   Música por párrafo — marcador, botón de toolbar, popover, reproductor
+   ========================================================================== */
+.music-paragraph {
+  position: relative;
+
+  &.has-music {
+    padding-left: 30px;
+  }
+}
+
+.music-paragraph-marker {
+  position: absolute;
+  left: 0;
+  top: 0.15em;
+  width: 22px;
+  height: 22px;
+  display: grid;
+  place-items: center;
+  border: none;
+  border-radius: 50%;
+  background-color: var(--c-primary-soft);
+  color: var(--c-primary-text);
+  flex-shrink: 0;
+  transition: background-color 0.15s var(--ease), color 0.15s var(--ease), transform 0.15s var(--ease);
+
+  &:hover {
+    background-color: var(--c-primary);
+    color: #fff;
+    transform: scale(1.08);
+  }
+}
+
+.music-paragraph.is-playing .music-paragraph-marker {
+  background-color: var(--c-primary);
+  color: #fff;
+  animation: music-pulse 1.4s ease-in-out infinite;
+}
+
+@keyframes music-pulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(26, 115, 232, 0.35);
+  }
+  50% {
+    box-shadow: 0 0 0 6px rgba(26, 115, 232, 0);
+  }
+}
+
+/* Botón "Música del párrafo" en la toolbar: se destaca a propósito del
+   resto de los botones (grises) para que el usuario lo note. */
+.editor-btn-music {
+  background: linear-gradient(135deg, #1a73e8, #7b5cff);
+  color: #fff;
+  box-shadow: 0 1px 4px rgba(123, 92, 255, 0.4);
+  animation: music-btn-glow 2.6s ease-in-out infinite;
+
+  &:hover:not(:disabled) {
+    background: linear-gradient(135deg, #1b66c9, #6a4be0);
+    color: #fff;
+    transform: scale(1.05);
+  }
+
+  &.editor-btn-active {
+    background: linear-gradient(135deg, #1b66c9, #6a4be0);
+    color: #fff;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
+  }
+}
+
+@keyframes music-btn-glow {
+  0%,
+  100% {
+    box-shadow: 0 1px 4px rgba(123, 92, 255, 0.4);
+  }
+  50% {
+    box-shadow: 0 1px 12px rgba(123, 92, 255, 0.75);
+  }
+}
+
+/* Popover "Música del párrafo" en la toolbar del editor */
+.menu-music {
+  width: 280px;
+  padding: 12px;
+}
+
+.music-menu-tabs {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 10px;
+}
+
+.music-menu-tab {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  height: 32px;
+  border: none;
+  border-radius: var(--r-md);
+  background-color: var(--c-surface-sunken);
+  color: var(--c-text-secondary);
+  font-size: 0.82rem;
+  font-weight: 500;
+
+  &.is-active {
+    background-color: var(--c-primary-soft);
+    color: var(--c-primary-text);
+  }
+}
+
+.music-menu-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.music-menu-label {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 0.78rem;
+  color: var(--c-text-secondary);
+}
+
+.music-menu-input {
+  height: 34px;
+  padding: 0 10px;
+  border: 1px solid var(--c-border);
+  border-radius: var(--r-md);
+  font-size: 0.85rem;
+  color: var(--c-text);
+  width: 100%;
+}
+
+.music-menu-title-input {
+  position: relative;
+  display: block;
+
+  .music-menu-input {
+    padding-right: 30px;
+  }
+}
+
+.music-menu-title-spinner {
+  position: absolute;
+  top: 50%;
+  right: 10px;
+  transform: translateY(-50%);
+  color: var(--c-text-muted);
+  pointer-events: none;
+}
+
+.music-menu-hint {
+  margin: 0;
+  font-size: 0.76rem;
+  color: var(--c-text-muted);
+}
+
+.music-menu-upload {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 36px;
+  border-radius: var(--r-md);
+  border: 1px dashed var(--c-border);
+  color: var(--c-text-secondary);
+  font-size: 0.84rem;
+  cursor: pointer;
+
+  &.is-disabled {
+    opacity: 0.6;
+    cursor: default;
+  }
+}
+
+.music-menu-apply {
+  height: 34px;
+  font-size: 0.84rem;
+}
+
+/* Reproductor flotante estilo Spotify: no reserva espacio en el layout,
+   flota sobre la hoja para no molestar la lectura. */
+.music-bar {
+  position: fixed;
+  left: 50%;
+  bottom: 18px;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  width: min(1000px, calc(100vw - 32px));
+  height: 60px;
+  padding: 0 18px;
+  border-radius: var(--r-xl);
+  background-color: var(--c-text);
+  color: #fff;
+  box-shadow: var(--sh-2);
+  z-index: 50;
+
+  @media (max-width: 640px) {
+    width: calc(100vw - 24px);
+    bottom: 12px;
+    gap: 10px;
+  }
+}
+
+.music-bar-info {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  min-width: 0;
+  flex-shrink: 0;
+  max-width: 300px;
+
+  @media (max-width: 640px) {
+    max-width: 80px;
+  }
+}
+
+.music-bar-icon {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background-color: rgba(255, 255, 255, 0.12);
+  flex-shrink: 0;
+}
+
+.music-bar-title {
+  font-size: 0.82rem;
+  font-weight: 500;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.music-bar-controls {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.music-bar-play {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  flex-shrink: 0;
+  border: none;
+  border-radius: 50%;
+  background-color: #fff;
+  color: var(--c-text);
+}
+
+.music-bar-time {
+  font-size: 0.72rem;
+  color: rgba(255, 255, 255, 0.7);
+  flex-shrink: 0;
+  width: 32px;
+  text-align: center;
+}
+
+.music-bar-progress {
+  flex: 1;
+  accent-color: #ffffff;
+}
+
+.music-bar-volume {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.music-bar-mute {
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  flex-shrink: 0;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.85);
+
+  &:hover {
+    background-color: rgba(255, 255, 255, 0.12);
+    color: #fff;
+  }
+}
+
+.music-bar-volume-slider {
+  width: 72px;
+  accent-color: #ffffff;
+
+  @media (max-width: 640px) {
+    width: 48px;
+  }
+}
+
+.music-bar-close {
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  border: none;
+  border-radius: 50%;
+  color: rgba(255, 255, 255, 0.7);
+
+  &:hover {
+    background-color: rgba(255, 255, 255, 0.12);
+    color: #fff;
+  }
+}

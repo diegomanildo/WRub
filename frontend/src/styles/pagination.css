@@ -1,0 +1,57 @@
+/* ==========================================================================
+   Paginado visual (usePagination.js / PaginationOverlay.jsx)
+   ========================================================================== */
+
+/* Envuelve la hoja para que la capa de paginado (position:absolute) pueda
+   posicionarse relativa a ella. La capa no participa del layout, así que no
+   afecta el flex:1 del .ProseMirror de arriba ni el fix de click al final
+   del documento. También la usa SharedProject.jsx (vista de compartir). */
+.editor-page-wrap {
+  position: relative;
+}
+
+.pagination-overlay {
+  position: absolute;
+  inset: 0;
+  max-width: 816px; /* mismo ancho y centrado que .editor-content */
+  margin: 0 auto;
+  pointer-events: none; /* nunca debe robarle clicks a la hoja */
+}
+
+/* El contenido no se toca, la línea se dibuja encima. Por eso puede cruzar
+   texto — es la limitación esperada y aceptada de este modo. */
+.pagination-cut-line {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 0;
+  border-top: 1.5px dashed var(--c-border-strong);
+
+  @media (prefers-reduced-motion: no-preference) {
+    animation: pagination-mark-in 0.15s var(--ease);
+  }
+}
+
+.pagination-page-label-line {
+  position: absolute;
+  top: -11px;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: var(--c-surface);
+  padding: 2px 10px;
+  border-radius: var(--r-pill);
+}
+
+.pagination-page-label {
+  font-size: 0.72rem;
+  font-weight: 500;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  color: var(--c-text-muted);
+  white-space: nowrap;
+}
+
+@keyframes pagination-mark-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
