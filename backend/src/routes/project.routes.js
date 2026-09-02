@@ -1,0 +1,17 @@
+const express = require("express");
+
+const controller = require("../controllers/project.controller");
+
+const router = express.Router();
+
+router.get("/", controller.getProjects);
+
+router.get("/:id", controller.getProject);
+
+router.post("/", controller.createProject);
+
+router.patch("/:id", controller.updateProject);
+
+router.delete("/:id", controller.deleteProject);
+
+module.exports = router;
