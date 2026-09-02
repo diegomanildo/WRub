@@ -1617,3 +1617,172 @@ button {
     width: 48px;
   }
 }
+
+/* ==========================================================================
+   Compartir (link de solo lectura) / vista pública del documento
+   ========================================================================== */
+.share-popover-wrap {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.share-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  height: 34px;
+  padding: 0 14px;
+  border: 1px solid var(--c-border-strong);
+  border-radius: var(--r-pill);
+  background-color: transparent;
+  color: var(--c-text);
+  font-size: 0.82rem;
+  font-weight: 500;
+  transition: background-color 0.12s var(--ease), border-color 0.12s var(--ease);
+}
+
+.share-btn:hover {
+  background-color: var(--c-surface-hover);
+}
+
+.share-btn-active {
+  background-color: var(--c-primary-soft);
+  border-color: transparent;
+  color: var(--c-primary-text);
+}
+
+.share-btn-active:hover {
+  background-color: var(--c-primary-soft-hover);
+}
+
+.share-btn-label {
+  white-space: nowrap;
+}
+
+@media (max-width: 640px) {
+  .share-btn-label {
+    display: none;
+  }
+  .share-btn {
+    padding: 0 10px;
+  }
+}
+
+.menu-share {
+  left: auto;
+  right: 0;
+  width: 300px;
+  padding: 14px;
+}
+
+.menu-share-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.86rem;
+  font-weight: 500;
+  color: var(--c-text);
+  margin-bottom: 6px;
+}
+
+.icon-btn-sm {
+  width: 24px;
+  height: 24px;
+}
+
+.menu-share-hint {
+  margin: 0 0 12px;
+  font-size: 0.78rem;
+  color: var(--c-text-secondary);
+  line-height: 1.5;
+}
+
+.menu-share-toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.84rem;
+  color: var(--c-text);
+  cursor: pointer;
+}
+
+.menu-share-url-row {
+  display: flex;
+  gap: 6px;
+  margin-top: 12px;
+}
+
+.menu-share-url {
+  flex: 1;
+  min-width: 0;
+  height: 32px;
+  padding: 0 10px;
+  border: 1px solid var(--c-border);
+  border-radius: var(--r-sm);
+  font-size: 0.78rem;
+  color: var(--c-text-secondary);
+  background-color: var(--c-surface-sunken);
+}
+
+.btn-sm {
+  height: 32px;
+  padding: 0 12px;
+  font-size: 0.78rem;
+  background-color: var(--c-primary);
+  color: #fff;
+  flex-shrink: 0;
+}
+
+.btn-sm:hover:not(:disabled) {
+  background-color: var(--c-primary-hover);
+}
+
+.menu-share-rotate {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 10px;
+  border: none;
+  background: none;
+  padding: 0;
+  font-size: 0.76rem;
+  color: var(--c-text-secondary);
+  text-decoration: underline;
+}
+
+.menu-share-rotate:hover:not(:disabled) {
+  color: var(--c-text);
+}
+
+/* ----- Página pública /compartir/:token ----- */
+.shared-page {
+  padding-bottom: 40px;
+}
+
+.shared-header {
+  align-items: flex-start;
+  padding: 20px 24px 10px;
+}
+
+.shared-title {
+  cursor: default;
+  padding-left: 0;
+}
+
+.shared-title:hover {
+  border-color: transparent;
+}
+
+.shared-subline {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding-left: 0;
+}
+
+/* El documento compartido no es editable: sin caret, sin cursor de texto,
+   para que se sienta como lectura y no confunda al amigo que lo abre. */
+.editor-content-readonly .ProseMirror {
+  cursor: default;
+  caret-color: transparent;
+}

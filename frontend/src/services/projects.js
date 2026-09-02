@@ -19,3 +19,19 @@ export function updateProject(id, data) {
 export function deleteProject(id) {
   return api.delete(`/projects/${id}`);
 }
+
+export function enableShare(id) {
+  return api.post(`/projects/${id}/share`);
+}
+
+export function disableShare(id) {
+  return api.delete(`/projects/${id}/share`);
+}
+
+export function rotateShare(id) {
+  return api.post(`/projects/${id}/share/rotate`);
+}
+
+export function getSharedProject(token) {
+  return api.get(`/share/${token}`);
+}

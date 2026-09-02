@@ -4,6 +4,7 @@ import { ArrowLeft, Check, CloudOff, Loader2, Pencil } from "lucide-react";
 import { getProject, updateProject } from "../services/projects";
 import { ROUTES } from "../routes/paths";
 import DocumentEditor from "../components/projects/DocumentEditor";
+import SharePopover from "../components/projects/SharePopover";
 import MusicPlayerBar from "../components/player/MusicPlayerBar";
 import { useMusicPlayer } from "../components/player/MusicPlayerContext";
 import { EditorSkeleton } from "../components/ui/Skeleton";
@@ -230,6 +231,8 @@ function Project() {
               <SaveStatus status={status} updatedAt={getUpdatedAt(project)} />
             </div>
           </div>
+
+          <SharePopover project={project} onProjectChange={setProject} />
         </div>
 
         {/* La toolbar vive junto al título para ahorrar espacio vertical:

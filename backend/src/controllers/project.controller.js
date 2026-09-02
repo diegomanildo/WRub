@@ -20,6 +20,16 @@ function getProject(req, res, next) {
   }
 }
 
+function getSharedProject(req, res, next) {
+  try {
+    const project = service.getSharedProject(req.params.token);
+
+    res.status(200).json(project);
+  } catch (error) {
+    next(error);
+  }
+}
+
 function createProject(req, res, next) {
   try {
     const { name, description } = req.body;
@@ -54,10 +64,44 @@ function deleteProject(req, res, next) {
   }
 }
 
+function enableShare(req, res, next) {
+  try {
+    const project = service.enableShare(req.params.id);
+
+    res.status(200).json(project);
+  } catch (error) {
+    next(error);
+  }
+}
+
+function disableShare(req, res, next) {
+  try {
+    const project = service.disableShare(req.params.id);
+
+    res.status(200).json(project);
+  } catch (error) {
+    next(error);
+  }
+}
+
+function rotateShare(req, res, next) {
+  try {
+    const project = service.rotateShareToken(req.params.id);
+
+    res.status(200).json(project);
+  } catch (error) {
+    next(error);
+  }
+}
+
 module.exports = {
   getProjects,
   getProject,
+  getSharedProject,
   createProject,
   updateProject,
   deleteProject,
+  enableShare,
+  disableShare,
+  rotateShare,
 };
