@@ -5,6 +5,7 @@ import Placeholder from "@tiptap/extension-placeholder";
 import { TextStyle, Color, FontFamily, FontSize } from "@tiptap/extension-text-style";
 import { useEffect, useRef } from "react";
 import MusicParagraph from "./MusicParagraph";
+import ResizableImage from "./ResizableImage";
 
 /**
  * Crea el editor Tiptap del documento + autoguardado. Se separó de la UI
@@ -20,7 +21,14 @@ import MusicParagraph from "./MusicParagraph";
  * transacciones que editen el doc, así que `onSave`/`onDirty` simplemente
  * nunca se llaman.
  */
-export function useDocumentEditor({ content, onSave, onDirty, placeholder, editable = true }) {
+export function useDocumentEditor({
+  content,
+  onSave,
+  onDirty,
+  placeholder,
+  editable = true,
+  saveNowRef,
+}) {
   const saveTimeout = useRef(null);
   const onSaveRef = useRef(onSave);
   const onDirtyRef = useRef(onDirty);
@@ -51,6 +59,7 @@ export function useDocumentEditor({ content, onSave, onDirty, placeholder, edita
         Color,
         FontFamily,
         FontSize,
+        ResizableImage.configure({ inline: false, HTMLAttributes: { class: "doc-image" } }),
         TextAlign.configure({ types: ["heading", "paragraph"] }),
         Placeholder.configure({
           placeholder: placeholder || "Empezá a escribir...",
@@ -79,18 +88,26 @@ export function useDocumentEditor({ content, onSave, onDirty, placeholder, edita
     [editable],
   );
 
-  // Guardado inmediato con Ctrl+S / Cmd+S
+  // Guardado inmediato: salta el debounce de 1200ms de onUpdate y guarda
+  // YA el HTML pendiente. Usado por Ctrl+S, por el desmontaje y por el botón
+  // "Actualizar" de SharePopover (vía `saveNowRef`) — este último para que
+  // quien tiene el link de solo lectura abierto no tenga que esperar el
+  // debounce para que el sondeo automático le traiga el cambio.
+  function flushPendingSave() {
+    if (saveTimeout.current) clearTimeout(saveTimeout.current);
+    if (pendingHtmlRef.current !== null) {
+      onSaveRef.current?.(pendingHtmlRef.current);
+      pendingHtmlRef.current = null;
+    }
+  }
+
   useEffect(() => {
     if (!editable) return;
 
     function handleShortcut(e) {
       if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "s") {
         e.preventDefault();
-        if (saveTimeout.current) clearTimeout(saveTimeout.current);
-        if (pendingHtmlRef.current !== null) {
-          onSaveRef.current?.(pendingHtmlRef.current);
-          pendingHtmlRef.current = null;
-        }
+        flushPendingSave();
       }
     }
 
@@ -98,16 +115,20 @@ export function useDocumentEditor({ content, onSave, onDirty, placeholder, edita
     return () => window.removeEventListener("keydown", handleShortcut);
   }, [editable]);
 
+  // Expone flushPendingSave a quien haya pasado `saveNowRef` (Project.jsx,
+  // para el botón "Actualizar" de SharePopover). Solo lee de refs, así que
+  // no hace falta que se vuelva a correr en cada render.
+  useEffect(() => {
+    if (!saveNowRef) return;
+    saveNowRef.current = flushPendingSave;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   // Al desmontar: si quedaron cambios sin guardar, guardalos ya
   useEffect(() => {
     if (!editable) return;
 
-    return () => {
-      if (saveTimeout.current) clearTimeout(saveTimeout.current);
-      if (pendingHtmlRef.current !== null) {
-        onSaveRef.current?.(pendingHtmlRef.current);
-      }
-    };
+    return () => flushPendingSave();
   }, [editable]);
 
   return editor;

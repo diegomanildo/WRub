@@ -18,8 +18,8 @@ import PaginationOverlay from "./PaginationOverlay";
  * acá, por el mismo motivo: un solo dueño. `PaginationOverlay` dibuja el
  * resultado (líneas de corte) encima de la hoja.
  */
-export default function DocumentEditor({ content, onSave, onDirty, placeholder, toolbarSlot }) {
-  const editor = useDocumentEditor({ content, onSave, onDirty, placeholder });
+export default function DocumentEditor({ content, onSave, onDirty, placeholder, toolbarSlot, saveNowRef }) {
+  const editor = useDocumentEditor({ content, onSave, onDirty, placeholder, saveNowRef });
   const { pageCount } = usePagination(editor);
 
   return (

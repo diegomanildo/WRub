@@ -22,6 +22,7 @@ import FontFamilyPicker from "./FontFamilyPicker";
 import ColorPicker from "./ColorPicker";
 import FontSizePicker from "./FontSizePicker";
 import MusicPicker from "./MusicPicker";
+import ImagePicker from "./ImagePicker";
 
 function ToolbarButton({ active, disabled, onClick, label, children }) {
   return (
@@ -109,6 +110,10 @@ export default function Toolbar({ editor }) {
         <Code2 size={17} />
       </ToolbarButton>
       <ColorPicker editor={editor} currentColor={state.color} />
+
+      <span className="editor-divider" />
+
+      <ImagePicker editor={editor} />
 
       <span className="editor-divider" />
 

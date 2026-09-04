@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useParams } from "react-router-dom";
 import { EditorContent } from "@tiptap/react";
 import { Music2 } from "lucide-react";
@@ -25,6 +25,21 @@ function SharedDocument({ project }) {
     content: project.content,
     editable: false,
   });
+  // El editor se crea una sola vez (ver comentario de arriba): cuando el
+  // sondeo automático de `SharedProject` trae contenido nuevo (el dueño
+  // guardó cambios), hay que empujarlo a mano acá.
+  const lastContentRef = useRef(project.content);
+
+  useEffect(() => {
+    if (!editor || project.content === lastContentRef.current) return;
+    lastContentRef.current = project.content;
+
+    // setContent reemplaza el DOM del editor entero; sin esto el scroll
+    // volvería siempre al principio de la hoja después de actualizar.
+    const scrollY = window.scrollY;
+    editor.commands.setContent(project.content || "");
+    requestAnimationFrame(() => window.scrollTo(0, scrollY));
+  }, [editor, project.content]);
 
   return (
     <div className="editor-page-wrap">
@@ -54,6 +69,9 @@ function SharedProject() {
   const [project, setProject] = useState(null);
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
+  // El objeto entero, no solo `updated_at`, para poder compararlo tal cual
+  // llega del sondeo sin depender de que el shape no cambie con el tiempo.
+  const projectRef = useRef(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -61,6 +79,7 @@ function SharedProject() {
     getSharedProject(token)
       .then((data) => {
         if (cancelled) return;
+        projectRef.current = data;
         setProject(data);
       })
       .catch(() => {
@@ -75,6 +94,31 @@ function SharedProject() {
       cancelled = true;
     };
   }, [token]);
+
+  // Sondeo en segundo plano: quien tiene el link abierto ve los cambios
+  // solos, sin recargar ni tocar nada. El disparador real es el botón
+  // "Actualizar" de SharePopover (fuerza el guardado del lado del dueño);
+  // acá solo hace falta pedir de nuevo cada tanto y comparar `updated_at`
+  // para no reemplazar el editor si no cambió nada.
+  useEffect(() => {
+    if (notFound) return;
+
+    const interval = setInterval(() => {
+      getSharedProject(token)
+        .then((data) => {
+          if (data.updated_at === projectRef.current?.updated_at) return;
+          projectRef.current = data;
+          setProject(data);
+        })
+        .catch(() => {
+          // Se desactivó/rotó el link mientras alguien lo tenía abierto:
+          // recién ahí se corta, no en cada poll fallido por una red floja.
+          setNotFound(true);
+        });
+    }, 4000);
+
+    return () => clearInterval(interval);
+  }, [token, notFound]);
 
   // Al salir de la página, cortar la música (mismo criterio que Project.jsx).
   useEffect(() => {

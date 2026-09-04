@@ -98,6 +98,11 @@
   background-color: var(--c-surface-sunken);
 }
 
+.menu-share-update {
+  width: 100%;
+  margin-top: 8px;
+}
+
 .menu-share-rotate {
   display: flex;
   align-items: center;

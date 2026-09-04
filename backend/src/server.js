@@ -6,6 +6,7 @@ const cors = require("cors");
 
 const projectRoutes = require("./routes/project.routes");
 const audioRoutes = require("./routes/audio.routes");
+const imageRoutes = require("./routes/image.routes");
 const shareRoutes = require("./routes/share.routes");
 
 const app = express();
@@ -20,6 +21,7 @@ app.use("/uploads", express.static(path.join(__dirname, "../uploads")));
 
 app.use("/api/projects", projectRoutes);
 app.use("/api/audio", audioRoutes);
+app.use("/api/images", imageRoutes);
 app.use("/api/share", shareRoutes);
 
 app.get("/api/health", (req, res) => {

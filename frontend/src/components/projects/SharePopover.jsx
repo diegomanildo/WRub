@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link2, Loader2, X } from "lucide-react";
+import { Link2, Loader2, RefreshCw, X } from "lucide-react";
 import { useDismissable } from "../../hooks/useDismissable";
 import { enableShare, disableShare, rotateShare } from "../../services/projects";
 import { ROUTES } from "../../routes/paths";
@@ -13,8 +13,15 @@ import { useToast } from "../ui/ToastProvider";
  *
  * `project`/`onProjectChange` son controlados por `Project.jsx` (mismo
  * dueño del estado `project` que ya tenía) para no duplicar el objeto acá.
+ *
+ * `saveNowRef` también viene de `Project.jsx` (lo llena `useDocumentEditor`):
+ * lo usa el botón "Actualizar" de acá abajo para guardar YA el contenido
+ * pendiente, sin esperar el debounce del autoguardado. La vista compartida
+ * (`SharedProject.jsx`) sondea el link cada pocos segundos sola, así que en
+ * cuanto este guardado termina, quien la tenga abierta la ve actualizada
+ * sin tocar nada de su lado.
  */
-function SharePopover({ project, onProjectChange }) {
+function SharePopover({ project, onProjectChange, saveNowRef }) {
   const { open, setOpen, ref } = useDismissable();
   const toast = useToast();
   const [loading, setLoading] = useState(false);
@@ -49,6 +56,11 @@ function SharePopover({ project, onProjectChange }) {
     } finally {
       setLoading(false);
     }
+  }
+
+  function handleUpdateNow() {
+    saveNowRef?.current?.();
+    toast.success("Documento actualizado — quien tenga el link abierto lo ve en unos segundos");
   }
 
   async function handleCopy() {
@@ -107,6 +119,11 @@ function SharePopover({ project, onProjectChange }) {
                   Copiar
                 </button>
               </div>
+
+              <button type="button" className="btn btn-sm menu-share-update" onClick={handleUpdateNow}>
+                <RefreshCw size={13} />
+                Actualizar documento compartido
+              </button>
 
               <button type="button" className="menu-share-rotate" onClick={handleRotate} disabled={loading}>
                 {loading ? <Loader2 size={13} className="spin" /> : null}

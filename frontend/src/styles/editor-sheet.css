@@ -116,6 +116,60 @@
       border-top: 1px solid var(--c-border);
     }
 
+    .resizable-image {
+      position: relative;
+      display: inline-block;
+      max-width: 100%;
+      line-height: 0;
+
+      img.doc-image {
+        display: block;
+        width: 100%;
+        max-width: 100%;
+        height: auto;
+        border-radius: var(--r-md);
+      }
+
+      &.is-selected img.doc-image {
+        outline: 3px solid var(--c-primary);
+        outline-offset: 2px;
+      }
+
+      .img-resize-handle {
+        position: absolute;
+        width: 11px;
+        height: 11px;
+        background-color: var(--c-primary);
+        border: 2px solid var(--c-surface);
+        border-radius: 50%;
+        z-index: 1;
+      }
+
+      .handle-nw {
+        top: -6px;
+        left: -6px;
+        cursor: nwse-resize;
+      }
+
+      .handle-ne {
+        top: -6px;
+        right: -6px;
+        cursor: nesw-resize;
+      }
+
+      .handle-sw {
+        bottom: -6px;
+        left: -6px;
+        cursor: nesw-resize;
+      }
+
+      .handle-se {
+        bottom: -6px;
+        right: -6px;
+        cursor: nwse-resize;
+      }
+    }
+
     p.is-editor-empty:first-child::before {
       content: attr(data-placeholder);
       color: var(--c-text-muted);

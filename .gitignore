@@ -1,0 +1,29 @@
+# dependencias
+node_modules/
+
+# build
+frontend/dist/
+frontend/.vite/
+
+# env / secrets
+.env
+.env.local
+*.env
+
+# DB (uso local, no versionar)
+backend/data/*.db
+backend/data/*.db-shm
+backend/data/*.db-wal
+
+# uploads de usuario (crecen solos, no son código)
+backend/uploads/
+
+# logs / OS
+*.log
+npm-debug.log*
+.DS_Store
+Thumbs.db
+
+# editor
+.vscode/
+.idea/

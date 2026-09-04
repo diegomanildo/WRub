@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { ArrowLeft, Check, CloudOff, Loader2, Pencil } from "lucide-react";
 import { getProject, updateProject } from "../services/projects";
@@ -71,6 +71,11 @@ function Project() {
   // (no un ref) porque el nodo no existe en el primer render y hace falta
   // re-renderizar cuando aparece.
   const [toolbarSlot, setToolbarSlot] = useState(null);
+
+  // Guardado inmediato expuesto por useDocumentEditor (ver ese archivo):
+  // lo usa el botón "Actualizar" de SharePopover para saltar el debounce del
+  // autoguardado antes de que el sondeo de la vista compartida lo levante.
+  const saveNowRef = useRef(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -232,7 +237,7 @@ function Project() {
             </div>
           </div>
 
-          <SharePopover project={project} onProjectChange={setProject} />
+          <SharePopover project={project} onProjectChange={setProject} saveNowRef={saveNowRef} />
         </div>
 
         {/* La toolbar vive junto al título para ahorrar espacio vertical:
@@ -247,6 +252,7 @@ function Project() {
           onSave={handleContentSave}
           onDirty={() => setStatus("dirty")}
           toolbarSlot={toolbarSlot}
+          saveNowRef={saveNowRef}
         />
       </div>
 
