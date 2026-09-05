@@ -9,6 +9,7 @@ import MusicPlayerBar from "../components/player/MusicPlayerBar";
 import { useMusicPlayer } from "../components/player/MusicPlayerContext";
 import { EditorSkeleton } from "../components/ui/Skeleton";
 import { useToast } from "../components/ui/ToastProvider";
+import { useDocumentTitle } from "../hooks/useDocumentTitle";
 import { formatFull, getUpdatedAt } from "../utils/format";
 
 function SaveStatus({ status, updatedAt }) {
@@ -76,6 +77,8 @@ function Project() {
   // lo usa el botón "Actualizar" de SharePopover para saltar el debounce del
   // autoguardado antes de que el sondeo de la vista compartida lo levante.
   const saveNowRef = useRef(null);
+
+  useDocumentTitle(project?.name);
 
   useEffect(() => {
     let cancelled = false;

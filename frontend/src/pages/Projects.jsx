@@ -14,6 +14,7 @@ import ProjectGrid from "../components/projects/ProjectGrid";
 import { ProjectGridSkeleton } from "../components/ui/Skeleton";
 import { useToast } from "../components/ui/ToastProvider";
 import { useSearch } from "../components/layout/AppLayout";
+import { useDocumentTitle } from "../hooks/useDocumentTitle";
 import { getUpdatedAt } from "../utils/format";
 
 const SORTS = {
@@ -58,6 +59,8 @@ function Projects() {
   const navigate = useNavigate();
   const toast = useToast();
   const { query } = useSearch();
+
+  useDocumentTitle("Mis proyectos");
 
   useEffect(() => {
     let cancelled = false;

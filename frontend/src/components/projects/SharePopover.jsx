@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link2, Loader2, RefreshCw, X } from "lucide-react";
+import { Copy, ExternalLink, Link2, Loader2, RefreshCw, X } from "lucide-react";
 import { useDismissable } from "../../hooks/useDismissable";
 import { enableShare, disableShare, rotateShare } from "../../services/projects";
 import { ROUTES } from "../../routes/paths";
@@ -63,6 +63,11 @@ function SharePopover({ project, onProjectChange, saveNowRef }) {
     toast.success("Documento actualizado — quien tenga el link abierto lo ve en unos segundos");
   }
 
+  function handleOpen() {
+    if (!shareUrl) return;
+    window.open(shareUrl, "_blank", "noopener,noreferrer");
+  }
+
   async function handleCopy() {
     if (!shareUrl) return;
     try {
@@ -108,15 +113,30 @@ function SharePopover({ project, onProjectChange, saveNowRef }) {
               disabled={loading}
               onChange={handleToggle}
             />
-            Enlace activado
+            Compartir
           </label>
 
-          {project.share_enabled && shareUrl && (
+          {!!project.share_enabled && shareUrl && (
             <>
               <div className="menu-share-url-row">
                 <input className="menu-share-url" value={shareUrl} readOnly onFocus={(e) => e.target.select()} />
-                <button type="button" className="btn btn-sm" onClick={handleCopy}>
-                  Copiar
+                <button
+                  type="button"
+                  className="icon-btn"
+                  onClick={handleCopy}
+                  aria-label="Copiar enlace"
+                  title="Copiar enlace"
+                >
+                  <Copy size={16} />
+                </button>
+                <button
+                  type="button"
+                  className="icon-btn"
+                  onClick={handleOpen}
+                  aria-label="Abrir enlace en una pestaña nueva"
+                  title="Abrir enlace"
+                >
+                  <ExternalLink size={16} />
                 </button>
               </div>
 

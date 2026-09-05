@@ -7,6 +7,7 @@ import { useDocumentEditor } from "../components/projects/useDocumentEditor";
 import MusicPlayerBar from "../components/player/MusicPlayerBar";
 import { useMusicPlayer } from "../components/player/MusicPlayerContext";
 import { EditorSkeleton } from "../components/ui/Skeleton";
+import { useDocumentTitle } from "../hooks/useDocumentTitle";
 
 /**
  * Monta el editor de solo lectura. Separado de `SharedProject` a propósito:
@@ -72,6 +73,10 @@ function SharedProject() {
   // El objeto entero, no solo `updated_at`, para poder compararlo tal cual
   // llega del sondeo sin depender de que el shape no cambie con el tiempo.
   const projectRef = useRef(null);
+
+  // "— Compartido" de más para distinguir esta pestaña de la de edición
+  // cuando el dueño tiene las dos abiertas a la vez.
+  useDocumentTitle(project?.name ? `${project.name} — Compartido` : null);
 
   useEffect(() => {
     let cancelled = false;
