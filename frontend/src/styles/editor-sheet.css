@@ -5,16 +5,18 @@
   padding: 0 16px 80px;
 }
 
+/* El papel (blanco, borde, sombra) ya no lo dibuja esto sino
+   `.page-sheet` (styles/pagination.css), una hoja por página: acá queda
+   solo el contenido, transparente y encima de ese fondo. El padding
+   vertical de 72px es el margen de la PRIMERA y la ÚLTIMA hoja; los
+   márgenes de las hojas del medio los pone el espaciador de corte. */
 .editor-content {
+  position: relative; /* encima de .page-backdrop */
   width: 100%;
   max-width: 816px;   /* 8.5in a 96dpi — igual que Google Docs */
   margin: 0 auto;
-  background-color: var(--c-surface);
-  border: 1px solid var(--c-border);
-  border-radius: 2px;
-  box-shadow: var(--sh-soft);
   padding: 72px 84px;
-  min-height: 1056px; /* 11in */
+  min-height: var(--doc-height, 1056px);
   /* display:flex + flex:1 en el .ProseMirror de abajo (en vez de
      min-height:100%) es lo que hace que el área editable ocupe todo el
      alto de la hoja: un min-height porcentual en el hijo no se resuelve
@@ -180,8 +182,24 @@
   }
 }
 
+/* El esqueleto de carga (ui/Skeleton.jsx) no pasa por el paginado, así que
+   no tiene `.page-sheet` detrás: se dibuja su propia hoja. */
+.editor-content-paper {
+  background-color: var(--c-surface);
+  border: 1px solid var(--c-border);
+  border-radius: 2px;
+  box-shadow: var(--sh-soft);
+  min-height: 1056px;
+}
+
+/* En pantallas chicas no hay hojas (ver .page-backdrop): el documento se
+   lee como un bloque continuo, con el papel puesto acá. */
 @media (max-width: 720px) {
   .editor-content {
+    background-color: var(--c-surface);
+    border: 1px solid var(--c-border);
+    border-radius: 2px;
+    box-shadow: var(--sh-soft);
     padding: 36px 24px;
     min-height: 60vh;
   }

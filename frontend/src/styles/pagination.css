@@ -1,57 +1,103 @@
 /* ==========================================================================
-   Paginado visual (usePagination.js / PaginationOverlay.jsx)
+   Paginado real (usePagination.js / PageBreaks.js / DocumentSheet.jsx)
+
+   El contenido es UN solo contenteditable continuo; lo que crea la
+   sensación de "hojas distintas" son dos cosas:
+     - `.page-backdrop`: una hoja de papel por página, apiladas cada
+       PAGE_STRIDE_PX (1056 + 24), dibujadas DETRÁS del contenido;
+     - `.page-break-spacer`: un espaciador que inserta ProseMirror antes del
+       bloque que no entraba, para que el texto salte el borde entre hojas.
+   Las medidas de acá tienen que seguir a las de utils/pagination.js.
    ========================================================================== */
 
-/* Envuelve la hoja para que la capa de paginado (position:absolute) pueda
-   posicionarse relativa a ella. La capa no participa del layout, así que no
-   afecta el flex:1 del .ProseMirror de arriba ni el fix de click al final
-   del documento. También la usa SharedProject.jsx (vista de compartir). */
-.editor-page-wrap {
-  position: relative;
+/* Marco del zoom. `transform: scale()` no ocupa lugar en el layout, así que
+   el que reserva el espacio real (y centra la hoja, y le da scroll
+   horizontal cuando el zoom la hace más ancha que la ventana) es este
+   marco: DocumentSheet le pone el ancho y el alto YA escalados. */
+.editor-zoom {
+  margin: 0 auto;
 }
 
-.pagination-overlay {
+.editor-page-wrap {
+  position: relative;
+  width: 816px; /* ancho de hoja; el zoom lo escala desde el marco */
+  /* Lo pone DocumentSheet: alto de todas las hojas + los gaps del medio. */
+  min-height: var(--doc-height, 1056px);
+  /* Escala desde el vértice de arriba a la izquierda para que el marco de
+     afuera (ancho x alto escalados) coincida exacto con lo que se ve. */
+  transform-origin: top left;
+}
+
+/* Capa de fondo: papel, borde y sombra. Nunca recibe clicks — el que los
+   recibe es el contenido de arriba, que ocupa el mismo rectángulo. */
+.page-backdrop {
   position: absolute;
   inset: 0;
   max-width: 816px; /* mismo ancho y centrado que .editor-content */
   margin: 0 auto;
-  pointer-events: none; /* nunca debe robarle clicks a la hoja */
+  pointer-events: none;
 }
 
-/* El contenido no se toca, la línea se dibuja encima. Por eso puede cruzar
-   texto — es la limitación esperada y aceptada de este modo. */
-.pagination-cut-line {
+.page-sheet {
   position: absolute;
   left: 0;
   right: 0;
-  height: 0;
-  border-top: 1.5px dashed var(--c-border-strong);
-
-  @media (prefers-reduced-motion: no-preference) {
-    animation: pagination-mark-in 0.15s var(--ease);
-  }
-}
-
-.pagination-page-label-line {
-  position: absolute;
-  top: -11px;
-  left: 50%;
-  transform: translateX(-50%);
+  height: 1056px; /* 11in */
   background-color: var(--c-surface);
-  padding: 2px 10px;
-  border-radius: var(--r-pill);
+  border: 1px solid var(--c-border);
+  border-radius: 2px;
+  box-shadow: var(--sh-soft);
 }
 
-.pagination-page-label {
+/* Número de hoja, dentro del margen inferior (donde nunca cae texto). */
+.page-sheet-number {
+  position: absolute;
+  bottom: 26px;
+  right: 84px;
   font-size: 0.72rem;
-  font-weight: 500;
-  letter-spacing: 0.03em;
-  text-transform: uppercase;
   color: var(--c-text-muted);
-  white-space: nowrap;
+  user-select: none;
 }
 
-@keyframes pagination-mark-in {
-  from { opacity: 0; }
-  to { opacity: 1; }
+/* El espaciador que salta el borde entre dos hojas. Los márgenes de acá no
+   son cosmética: computeLayout() da por hecho que un espaciador aporta
+   EXACTAMENTE su alto, ni un píxel más.
+     - `margin: 0` en el espaciador, porque `.ProseMirror > * + *` le pondría
+       0.85em de más;
+     - `margin-top: 0` en el bloque que va justo después, porque ese bloque
+       también es un `* + *` y volvía a sumar 0.85em: el corte quedaba corto
+       y la primera línea de la hoja terminaba flotando ~12px arriba del
+       borde, sobre el gris (la "f en el aire"). El hueco de arriba del
+       espaciador ya lo aporta el margen de abajo del bloque anterior, que
+       es el hueco natural entre los dos. */
+.page-break-spacer {
+  margin: 0 !important;
+  flex: none;
+  user-select: none;
+  pointer-events: none;
+}
+
+.editor-content .ProseMirror > .page-break-spacer + * {
+  margin-top: 0;
+}
+
+@media (max-width: 720px) {
+  /* En pantallas chicas la hoja no entra: se muestra como un bloque
+     continuo (ver .editor-content en editor-sheet.css). */
+  .page-backdrop {
+    display: none;
+  }
+
+  /* Sin hojas tampoco hay zoom: el documento se adapta al ancho de la
+     pantalla y el marco vuelve a ser un div común. */
+  .editor-zoom,
+  .editor-page-wrap {
+    width: auto !important;
+    height: auto !important;
+    transform: none !important;
+  }
+
+  .editor-page-wrap {
+    min-height: 0;
+  }
 }
