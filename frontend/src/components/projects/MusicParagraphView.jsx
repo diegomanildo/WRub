@@ -11,7 +11,7 @@ import { INDENT_STEP_PX } from "../../utils/indent";
  * ni depende de heurísticas de coordenadas de click.
  */
 export default function MusicParagraphView({ node }) {
-  const { musicType, musicSrc, musicTitle, indent } = node.attrs;
+  const { musicType, musicSrc, musicTitle, indent, textAlign } = node.attrs;
   const { play, current, playing } = useMusicPlayer();
 
   const hasMusic = Boolean(musicType && musicSrc);
@@ -31,7 +31,10 @@ export default function MusicParagraphView({ node }) {
       className={`music-paragraph ${hasMusic ? "has-music" : ""} ${
         isThisPlaying ? "is-playing" : ""
       }`}
-      style={indent ? { marginLeft: `${indent * INDENT_STEP_PX}px` } : undefined}
+      style={{
+        ...(indent ? { marginLeft: `${indent * INDENT_STEP_PX}px` } : null),
+        ...(textAlign ? { textAlign } : null),
+      }}
     >
       {hasMusic && (
         <button
