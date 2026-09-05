@@ -1,7 +1,44 @@
 const crypto = require("crypto");
 const db = require("../config/database");
 
-function findAll() {
+// Listado de "Mis proyectos": sin `content` a propósito. La lista solo
+// muestra nombre, descripción y fecha, pero el HTML de cada documento puede
+// pesar megas — traerlo acá significaba bajar todos los documentos enteros
+// para pintar unas tarjetas.
+function findAllSummary() {
+  return db
+    .prepare(
+      `
+            SELECT
+                id,
+                name,
+                description,
+                -- Solo el arranque del documento: las tarjetas muestran un
+                -- extracto corto, y con substr el HTML completo no sale de
+                -- la base (el service lo pasa a texto plano).
+                substr(content, 1, 2000) AS content_head,
+                created_at,
+                updated_at,
+                share_token,
+                share_enabled
+            FROM projects
+            ORDER BY updated_at DESC
+        `,
+    )
+    .all();
+}
+
+// Solo los contenidos, para la limpieza de archivos subidos al borrar un
+// proyecto (ver uploads.service.js), que es el único caso donde hacen falta
+// todos juntos.
+function findAllContents() {
+  return db
+    .prepare(`SELECT content FROM projects`)
+    .all()
+    .map((row) => row.content);
+}
+
+function findById(id) {
   return db
     .prepare(
       `
@@ -15,13 +52,15 @@ function findAll() {
                 share_token,
                 share_enabled
             FROM projects
-            ORDER BY updated_at DESC
+            WHERE id = ?
         `,
     )
-    .all();
+    .get(id);
 }
 
-function findById(id) {
+// Igual que findAllSummary pero de a uno: lo usa la búsqueda, que arma su
+// lista de resultados a partir de los ids que devuelve el índice.
+function findSummaryById(id) {
   return db
     .prepare(
       `
@@ -29,7 +68,10 @@ function findById(id) {
                 id,
                 name,
                 description,
-                content,
+                -- Solo el arranque del documento: las tarjetas muestran un
+                -- extracto corto, y con substr el HTML completo no sale de
+                -- la base (el service lo pasa a texto plano).
+                substr(content, 1, 2000) AS content_head,
                 created_at,
                 updated_at,
                 share_token,
@@ -74,18 +116,32 @@ function create(name, description) {
   return findById(result.lastInsertRowid);
 }
 
-function update(id, name, description, content) {
-  db.prepare(
-    `
+/**
+ * Update parcial: solo pisa las columnas presentes en `fields`. Antes era
+ * un UPDATE fijo de las tres columnas, así que guardar el contenido exigía
+ * mandar también nombre y descripción, y omitir cualquiera de las dos las
+ * ponía en null.
+ */
+function update(id, fields) {
+  const columns = [];
+  const values = [];
+
+  for (const column of ["name", "description", "content"]) {
+    if (column in fields) {
+      columns.push(`${column} = ?`);
+      values.push(fields[column]);
+    }
+  }
+
+  if (columns.length > 0) {
+    db.prepare(
+      `
             UPDATE projects
-            SET
-                name = ?,
-                description = ?,
-                content = ?,
-                updated_at = CURRENT_TIMESTAMP
+            SET ${columns.join(", ")}, updated_at = CURRENT_TIMESTAMP
             WHERE id = ?
         `,
-  ).run(name, description, content, id);
+    ).run(...values, id);
+  }
 
   return findById(id);
 }
@@ -148,8 +204,135 @@ function rotateShareToken(id) {
   return findById(id);
 }
 
+/* ===== Historial de versiones ===== */
+
+function createVersion(projectId, name, content) {
+  return db
+    .prepare(
+      `
+            INSERT INTO project_versions (project_id, name, content)
+            VALUES (?, ?, ?)
+        `,
+    )
+    .run(projectId, name, content);
+}
+
+// Sin `content`: la lista del historial solo muestra fecha y nombre, y
+// traer el HTML de cada snapshot sería peor que el problema que arregla
+// findAllSummary (son N versiones por proyecto).
+function findVersions(projectId) {
+  return db
+    .prepare(
+      `
+            SELECT id, name, created_at
+            FROM project_versions
+            WHERE project_id = ?
+            ORDER BY created_at DESC, id DESC
+        `,
+    )
+    .all(projectId);
+}
+
+function findVersionById(projectId, versionId) {
+  return db
+    .prepare(
+      `
+            SELECT id, name, content, created_at
+            FROM project_versions
+            WHERE project_id = ? AND id = ?
+        `,
+    )
+    .get(projectId, versionId);
+}
+
+function findLatestVersion(projectId) {
+  return db
+    .prepare(
+      `
+            SELECT id, created_at
+            FROM project_versions
+            WHERE project_id = ?
+            ORDER BY created_at DESC, id DESC
+            LIMIT 1
+        `,
+    )
+    .get(projectId);
+}
+
+// Poda: el historial es una red de seguridad, no un archivo histórico. Sin
+// esto la tabla crece sin techo con cada snapshot.
+function pruneVersions(projectId, keep) {
+  return db
+    .prepare(
+      `
+            DELETE FROM project_versions
+            WHERE project_id = ?
+              AND id NOT IN (
+                  SELECT id FROM project_versions
+                  WHERE project_id = ?
+                  ORDER BY created_at DESC, id DESC
+                  LIMIT ?
+              )
+        `,
+    )
+    .run(projectId, projectId, keep);
+}
+
+/* ===== Índice full-text ===== */
+
+// El rowid del índice es el id del proyecto. Se borra y se reinserta en vez
+// de UPDATE porque en FTS5 es la forma recomendada de reindexar una fila.
+function indexProject(id, name, description, contentText) {
+  db.prepare(`DELETE FROM projects_fts WHERE rowid = ?`).run(id);
+
+  db.prepare(
+    `
+            INSERT INTO projects_fts (rowid, name, description, content)
+            VALUES (?, ?, ?, ?)
+        `,
+  ).run(id, name || "", description || "", contentText || "");
+}
+
+function removeFromIndex(id) {
+  db.prepare(`DELETE FROM projects_fts WHERE rowid = ?`).run(id);
+}
+
+function countIndexed() {
+  return db.prepare(`SELECT COUNT(*) AS total FROM projects_fts`).get().total;
+}
+
+/**
+ * Ids de proyectos que matchean, ordenados por relevancia (`rank` de FTS5,
+ * más negativo = mejor), junto con un fragmento del contenido con los
+ * términos encontrados para mostrar en los resultados.
+ *
+ * Los términos se marcan con los caracteres de control  y , no con
+ * <mark>: el fragmento es texto escrito por el usuario, así que si viniera
+ * con etiquetas HTML el front tendría que insertarlo como HTML para que se
+ * vea el resaltado, y de paso ejecutaría lo que hubiera escrito en el
+ * documento. Con delimitadores que no existen en el texto, el front parte
+ * el string y arma los <mark> como elementos de React.
+ */
+function searchIds(match, limit) {
+  return db
+    .prepare(
+      `
+            SELECT
+                rowid AS id,
+                snippet(projects_fts, 2, char(1), char(2), '…', 20) AS snippet
+            FROM projects_fts
+            WHERE projects_fts MATCH ?
+            ORDER BY rank
+            LIMIT ?
+        `,
+    )
+    .all(match, limit);
+}
+
 module.exports = {
-  findAll,
+  findAllSummary,
+  findAllContents,
+  findSummaryById,
   findById,
   findByShareToken,
   create,
@@ -158,4 +341,13 @@ module.exports = {
   enableShare,
   disableShare,
   rotateShareToken,
+  createVersion,
+  findVersions,
+  findVersionById,
+  findLatestVersion,
+  pruneVersions,
+  indexProject,
+  removeFromIndex,
+  countIndexed,
+  searchIds,
 };

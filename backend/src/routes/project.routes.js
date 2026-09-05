@@ -24,4 +24,13 @@ router.delete("/:id/share", controller.disableShare);
 
 router.post("/:id/share/rotate", controller.rotateShare);
 
+// Historial de versiones. La lista no trae el contenido de cada snapshot
+// (ver el repositorio); para eso está el GET de una versión puntual, que lo
+// usa la vista previa antes de restaurar.
+router.get("/:id/versions", controller.getVersions);
+
+router.get("/:id/versions/:versionId", controller.getVersion);
+
+router.post("/:id/versions/:versionId/restore", controller.restoreVersion);
+
 module.exports = router;
