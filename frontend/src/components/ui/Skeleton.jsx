@@ -34,7 +34,7 @@ export function ProjectGridSkeleton({ count = 8 }) {
 export function EditorSkeleton() {
   return (
     <div className="editor-scroll" aria-busy="true">
-      <div className="editor-content">
+      <div className="editor-content editor-content-paper">
         <Skeleton width="60%" height={26} />
         <Skeleton height={12} style={{ marginTop: 28 }} />
         <Skeleton height={12} style={{ marginTop: 12 }} />

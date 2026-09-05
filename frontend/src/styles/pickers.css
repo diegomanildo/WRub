@@ -39,6 +39,12 @@
   font-variant-numeric: tabular-nums;
 }
 
+/* "100%" + la flecha no entran en el ancho del selector de tamaño. */
+.editor-select-zoom {
+  min-width: 70px;
+  max-width: 78px;
+}
+
 .menu-sizes {
   left: 50%;
   right: auto;

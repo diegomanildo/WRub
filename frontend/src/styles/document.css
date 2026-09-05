@@ -3,7 +3,7 @@
    ========================================================================== */
 .doc-page {
   min-height: 100%;
-  background-color: #f8f9fa;
+  background-color: var(--c-bg-subtle);
 }
 
 .doc-header {
@@ -23,9 +23,71 @@
   gap: 12px;
 }
 
-.doc-header-main {
+/* La fila del header es de tres columnas: título | toolbar | acciones. Las
+   dos de los costados llevan `flex: 1 1 0` (mismo reparto del espacio que
+   sobra, sin importar cuánto texto tenga cada una), y por eso la del medio
+   queda centrada EN LA PÁGINA y no entre sus vecinos. Efecto secundario
+   importante: la toolbar no se corre cuando el estado de guardado pasa de
+   "Modificado ayer" a "Guardando..." y a "Guardado". */
+.doc-header-left {
   min-width: 0;
-  flex: 1;
+  flex: 1 1 0;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+
+  /* El botón de volver no se achica: lo que cede cuando falta lugar es el
+     título (que ya corta con ellipsis). Sin esto la columna entera se
+     encogía hasta 0 y desaparecían el botón y el título. */
+  > .icon-btn {
+    flex: none;
+  }
+}
+
+.doc-header-main {
+  /* Un piso para el título: sin esto, con tal de dejarle a la toolbar sus
+     ~1120px en un renglón, el título se achicaba hasta quedar en tres
+     puntos suspensivos. Preferimos que la toolbar se acomode en dos
+     renglones antes que perder el nombre del documento. */
+  min-width: 140px;
+  flex: 0 1 auto;
+}
+
+.doc-header-actions {
+  min-width: 0;
+  flex: 1 1 0;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+
+  /* Los botones (historial y Compartir) nunca se achican; el que cede es el
+     contador, que corta con ellipsis y en pantallas chicas ya se esconde
+     solo (ver .doc-stats). */
+  > * {
+    flex: none;
+  }
+
+  > .doc-stats {
+    flex: 0 1 auto;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+}
+
+/* Hueco donde <DocumentEditor/> porta la toolbar, en el medio de la fila.
+   Se queda con su ancho natural (`flex: 0 1 auto`) y cede solo si no hay
+   lugar; el reparto de lo que sobra lo hacen las dos columnas de al lado. */
+.doc-header-toolbar {
+  flex: 0 1 auto;
+  min-width: 0;
+}
+
+/* Dentro de la fila, la píldora ocupa todo el hueco: el `- 32px` que trae
+   de cuando tenía renglón propio (para no pegarse a los bordes) le hacía
+   faltar justo esos píxeles y partía el último botón a un segundo renglón. */
+.doc-header-toolbar .editor-toolbar {
+  max-width: 100%;
 }
 
 .doc-title {
@@ -65,6 +127,7 @@
   display: flex;
   align-items: center;
   gap: 8px;
+  overflow: hidden;
   padding-left: 9px;
   margin-top: 2px;
   color: var(--c-text-secondary);
@@ -75,6 +138,14 @@
   display: inline-flex;
   align-items: center;
   gap: 6px;
+}
+
+.save-status-idle {
+  display: block;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .save-status-saving { color: var(--c-text-secondary); }
@@ -93,4 +164,51 @@
 
 @media (prefers-reduced-motion: reduce) {
   .spin { animation: none; }
+}
+
+.doc-stats {
+  color: var(--c-text-muted);
+  white-space: nowrap;
+
+  /* En pantallas chicas la línea ya la ocupa el estado de guardado. */
+  @media (max-width: 640px) {
+    display: none;
+  }
+}
+
+.doc-stats-sep {
+  margin: 0 5px;
+}
+
+/* La toolbar completa mide ~1120px: con el título, el volver y los botones
+   de la derecha entra entera en un renglón a partir de ~1850px de ancho.
+   Entre eso y 1150px sigue al lado del título pero acomodándose en dos o
+   tres renglones dentro de su píldora (el header queda igual de alto que
+   cuando la toolbar tenía línea propia). Debajo de 1150px ya no queda lugar
+   y vuelve a su propia línea, abajo: `order: 1` la manda al final de la
+   fila (después de los botones) y `flex-basis: 100%` la deja sola en ese
+   renglón. */
+@media (max-width: 1150px) {
+  .doc-header-row {
+    flex-wrap: wrap;
+  }
+
+  .doc-header-toolbar {
+    order: 1;
+    flex-basis: 100%;
+  }
+
+  /* Con la toolbar en su propio renglón, la píldora vuelve a necesitar el
+     margen contra los bordes. */
+  .doc-header-toolbar .editor-toolbar {
+    max-width: calc(100% - 32px);
+  }
+
+  .doc-header-left {
+    flex: 1 1 auto;
+  }
+
+  .doc-header-actions {
+    flex: 0 0 auto;
+  }
 }

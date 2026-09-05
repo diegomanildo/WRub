@@ -145,3 +145,78 @@
   gap: 6px;
   padding-left: 0;
 }
+
+/* ==========================================================================
+   Historial de versiones
+   ========================================================================== */
+.history-wrap {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.menu-history {
+  left: auto;
+  right: 0;
+  width: 320px;
+  padding: 14px;
+}
+
+.history-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  /* El historial tiene techo de 50 versiones: scrollea en vez de empujar
+     el popover fuera de la pantalla. */
+  max-height: 240px;
+  overflow-y: auto;
+}
+
+.history-item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  width: 100%;
+  padding: 8px 10px;
+  border: none;
+  border-radius: var(--r-sm);
+  background: none;
+  text-align: left;
+  color: var(--c-text);
+
+  &:hover {
+    background-color: var(--c-surface-hover);
+  }
+
+  &.is-active {
+    background-color: var(--c-primary-soft);
+    color: var(--c-primary-text);
+  }
+}
+
+.history-item-date {
+  font-size: 0.82rem;
+  font-weight: 500;
+}
+
+.history-item-name {
+  font-size: 0.75rem;
+  color: var(--c-text-secondary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.history-preview {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--c-border);
+}
+
+.history-preview-text {
+  margin: 0 0 10px;
+  max-height: 88px;
+  overflow: hidden;
+  font-size: 0.76rem;
+  line-height: 1.5;
+  color: var(--c-text-secondary);
+}

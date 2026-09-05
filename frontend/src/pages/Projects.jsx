@@ -8,7 +8,12 @@ import {
   List as ListIcon,
   ArrowDownUp,
 } from "lucide-react";
-import { getProjects, createProject, deleteProject } from "../services/projects";
+import {
+  getProjects,
+  searchProjects,
+  createProject,
+  deleteProject,
+} from "../services/projects";
 import { ROUTES } from "../routes/paths";
 import ProjectGrid from "../components/projects/ProjectGrid";
 import { ProjectGridSkeleton } from "../components/ui/Skeleton";
@@ -53,6 +58,13 @@ function Projects() {
   const [projectToDelete, setProjectToDelete] = useState(null);
   const [deleting, setDeleting] = useState(false);
 
+  // Resultados de la búsqueda full-text del backend (busca también dentro
+  // del texto del documento, no solo en el nombre). Se guarda junto con la
+  // consulta que los produjo: así "¿estos resultados son de lo que hay
+  // escrito ahora?" se deriva del render y el efecto no tiene que limpiar
+  // el estado en cuanto cambia el texto.
+  const [results, setResults] = useState(null);
+
   const [view, setView] = useState(() => readStored("wrub:view", "grid"));
   const [sort, setSort] = useState(() => readStored("wrub:sort", "recent"));
 
@@ -82,18 +94,53 @@ function Projects() {
     };
   }, [toast]);
 
-  const visibleProjects = useMemo(() => {
-    const q = query.trim().toLowerCase();
-    const filtered = q
-      ? projects.filter(
-          (p) =>
-            p.name.toLowerCase().includes(q) ||
-            (p.description || "").toLowerCase().includes(q),
-        )
-      : projects;
+  // Búsqueda en el backend, con un respiro entre tecla y tecla para no
+  // disparar una consulta por carácter. El filtro local de antes solo veía
+  // el nombre y la descripción; el contenido del documento ya no viaja en
+  // el listado, así que buscar adentro tiene que hacerlo el servidor.
+  useEffect(() => {
+    const q = query.trim();
 
-    return [...filtered].sort(SORTS[sort]?.compare ?? SORTS.recent.compare);
-  }, [projects, query, sort]);
+    if (q === "") return;
+
+    let cancelled = false;
+
+    const timeout = setTimeout(() => {
+      searchProjects(q)
+        .then((data) => {
+          if (!cancelled) setResults({ query: q, items: data });
+        })
+        .catch((error) => {
+          console.error(error);
+          if (!cancelled) setResults({ query: q, items: [] });
+        });
+    }, 250);
+
+    return () => {
+      cancelled = true;
+      clearTimeout(timeout);
+    };
+  }, [query]);
+
+  const trimmedQuery = query.trim();
+  const isSearching = trimmedQuery !== "";
+
+  // Los resultados sirven solo si son de lo que está escrito ahora: si no,
+  // todavía se está buscando (o se cambió el texto y los viejos ya no
+  // corresponden).
+  const searchResults =
+    isSearching && results?.query === trimmedQuery ? results.items : null;
+
+  const searching = isSearching && searchResults === null;
+
+  const visibleProjects = useMemo(() => {
+    // Los resultados vienen ordenados por relevancia: reordenarlos por
+    // fecha o nombre tiraría eso a la basura, así que el criterio de orden
+    // solo aplica al listado completo.
+    if (searchResults) return searchResults;
+
+    return [...projects].sort(SORTS[sort]?.compare ?? SORTS.recent.compare);
+  }, [projects, searchResults, sort]);
 
   function changeView(next) {
     setView(next);
@@ -137,21 +184,27 @@ function Projects() {
     }
   }
 
-  const searching = query.trim() !== "";
-
   return (
     <div className="page">
       <h1 className="page-title">
-        {searching ? "Resultados de la búsqueda" : "Mis proyectos"}
+        {isSearching ? "Resultados de la búsqueda" : "Mis proyectos"}
       </h1>
 
       <div className="toolbar-row">
-        <button type="button" className="chip-select" onClick={cycleSort}>
-          <ArrowDownUp size={15} />
-          {SORTS[sort]?.label ?? SORTS.recent.label}
-        </button>
+        {!isSearching && (
+          <button type="button" className="chip-select" onClick={cycleSort}>
+            <ArrowDownUp size={15} />
+            {SORTS[sort]?.label ?? SORTS.recent.label}
+          </button>
+        )}
 
-        {!loading && (
+        {isSearching && (
+          <span className="result-count">
+            {searching ? "Buscando..." : "Por relevancia"}
+          </span>
+        )}
+
+        {!loading && !searching && (
           <span className="result-count">
             {visibleProjects.length === 0
               ? "Sin resultados"
@@ -185,19 +238,20 @@ function Projects() {
         </div>
       </div>
 
-      {loading ? (
+      {loading || searching ? (
         <ProjectGridSkeleton />
       ) : visibleProjects.length === 0 ? (
         <div className="empty-state">
           <span className="empty-state-icon">
-            {searching ? <SearchX size={34} strokeWidth={1.5} /> : <FilePlus2 size={34} strokeWidth={1.5} />}
+            {isSearching ? <SearchX size={34} strokeWidth={1.5} /> : <FilePlus2 size={34} strokeWidth={1.5} />}
           </span>
 
-          {searching ? (
+          {isSearching ? (
             <>
               <p className="empty-state-title">Nada coincide con "{query}"</p>
               <p className="empty-state-text">
-                Probá con otro nombre o revisá la ortografía.
+                Se busca en el nombre, la descripción y el texto de los
+                documentos. Probá con otra palabra o revisá la ortografía.
               </p>
             </>
           ) : (

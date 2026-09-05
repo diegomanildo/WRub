@@ -1,9 +1,9 @@
 import { useEffect, useRef, useState } from "react";
 import { useParams } from "react-router-dom";
-import { EditorContent } from "@tiptap/react";
 import { Music2 } from "lucide-react";
 import { getSharedProject } from "../services/projects";
 import { useDocumentEditor } from "../components/projects/useDocumentEditor";
+import DocumentSheet from "../components/projects/DocumentSheet";
 import MusicPlayerBar from "../components/player/MusicPlayerBar";
 import { useMusicPlayer } from "../components/player/MusicPlayerContext";
 import { EditorSkeleton } from "../components/ui/Skeleton";
@@ -42,11 +42,7 @@ function SharedDocument({ project }) {
     requestAnimationFrame(() => window.scrollTo(0, scrollY));
   }, [editor, project.content]);
 
-  return (
-    <div className="editor-page-wrap">
-      <EditorContent editor={editor} className="editor-content editor-content-readonly" />
-    </div>
-  );
+  return <DocumentSheet editor={editor} readOnly />;
 }
 
 /**
@@ -102,16 +98,16 @@ function SharedProject() {
 
   // Sondeo en segundo plano: quien tiene el link abierto ve los cambios
   // solos, sin recargar ni tocar nada. El disparador real es el botón
-  // "Actualizar" de SharePopover (fuerza el guardado del lado del dueño);
-  // acá solo hace falta pedir de nuevo cada tanto y comparar `updated_at`
-  // para no reemplazar el editor si no cambió nada.
+  // "Actualizar" de SharePopover (fuerza el guardado del lado del dueño).
+  // Se manda el `updated_at` vigente como `since`: si no cambió nada el
+  // backend responde 204 (data === null) y no viaja el documento entero.
   useEffect(() => {
     if (notFound) return;
 
     const interval = setInterval(() => {
-      getSharedProject(token)
+      getSharedProject(token, projectRef.current?.updated_at)
         .then((data) => {
-          if (data.updated_at === projectRef.current?.updated_at) return;
+          if (!data || data.updated_at === projectRef.current?.updated_at) return;
           projectRef.current = data;
           setProject(data);
         })

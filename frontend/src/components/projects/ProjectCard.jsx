@@ -1,14 +1,16 @@
 import { FileText } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { ROUTES } from "../../routes/paths";
-import { formatRelative, formatFull, getUpdatedAt, htmlToText } from "../../utils/format";
+import { formatRelative, formatFull, getUpdatedAt } from "../../utils/format";
 import ProjectMenu from "./ProjectMenu";
+import SearchSnippet from "./SearchSnippet";
 
 function ProjectCard({ project, onDeleteClick = () => {} }) {
   const navigate = useNavigate();
   const open = () => navigate(ROUTES.PROJECT(project.id));
 
-  const preview = htmlToText(project.content);
+  // `preview` lo manda el backend ya en texto plano; `snippet` solo viene
+  // en los resultados de búsqueda, con el fragmento que coincidió.
   const updatedAt = getUpdatedAt(project);
 
   return (
@@ -35,8 +37,10 @@ function ProjectCard({ project, onDeleteClick = () => {} }) {
       </div>
 
       <div className="project-preview">
-        {preview ? (
-          preview.slice(0, 400)
+        {project.snippet ? (
+          <SearchSnippet snippet={project.snippet} />
+        ) : project.preview ? (
+          project.preview
         ) : (
           <span className="project-preview-empty">Documento vacío</span>
         )}

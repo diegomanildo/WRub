@@ -154,7 +154,11 @@
   position: absolute;
   inset: auto 0 0 0;
   height: 42px;
-  background: linear-gradient(to bottom, rgba(248, 249, 250, 0), #f8f9fa);
+  background: linear-gradient(
+    to bottom,
+    rgba(var(--c-bg-subtle-rgb), 0),
+    rgba(var(--c-bg-subtle-rgb), 1)
+  );
 }
 
 .project-preview-empty {
@@ -268,4 +272,12 @@
   .list-head span:nth-child(3) {
     display: none;
   }
+}
+
+/* Términos coincidentes en los resultados de búsqueda. */
+.search-mark {
+  background-color: var(--c-primary-soft);
+  color: var(--c-primary-text);
+  border-radius: 3px;
+  padding: 0 2px;
 }

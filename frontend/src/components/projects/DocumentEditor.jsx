@@ -1,9 +1,9 @@
-import { EditorContent } from "@tiptap/react";
 import { createPortal } from "react-dom";
 import Toolbar from "./Toolbar";
 import { useDocumentEditor } from "./useDocumentEditor";
-import { usePagination } from "./usePagination";
-import PaginationOverlay from "./PaginationOverlay";
+import DocumentSheet from "./DocumentSheet";
+import DocumentStats from "./DocumentStats";
+import { useZoom } from "../../hooks/useZoom";
 
 /**
  * Crea el editor y renderiza la hoja (`EditorContent`) acá mismo, pero la
@@ -14,23 +14,37 @@ import PaginationOverlay from "./PaginationOverlay";
  * rompía la edición: el estado levantado quedaba desincronizado / en null
  * y la toolbar no llegaba a aparecer.
  *
- * El cálculo de cuántas hojas "entrarían" (`usePagination`) también vive
- * acá, por el mismo motivo: un solo dueño. `PaginationOverlay` dibuja el
- * resultado (líneas de corte) encima de la hoja.
+ * La hoja en sí (y el paginado, que necesita la misma instancia de
+ * `editor`) la dibuja `DocumentSheet`, compartido con la vista de solo
+ * lectura del link para compartir.
+ *
+ * El zoom vive acá por el mismo motivo que la toolbar y el contador: lo
+ * necesitan dos hijos que están en ramas distintas del árbol (el selector,
+ * portado al header; la hoja, más abajo), así que el dueño tiene que ser el
+ * ancestro común. Es solo visual: escala la hoja, no cambia el documento ni
+ * el paginado (ver `usePagination`).
  */
-export default function DocumentEditor({ content, onSave, onDirty, placeholder, toolbarSlot, saveNowRef }) {
+export default function DocumentEditor({ content, onSave, onDirty, placeholder, toolbarSlot, statsSlot, saveNowRef }) {
   const editor = useDocumentEditor({ content, onSave, onDirty, placeholder, saveNowRef });
-  const { pageCount } = usePagination(editor);
+  const { zoom, scale, setZoom, step } = useZoom();
 
   return (
     <>
       {toolbarSlot
-        ? createPortal(<Toolbar editor={editor} />, toolbarSlot)
+        ? createPortal(
+            <Toolbar
+              editor={editor}
+              zoom={zoom}
+              onZoomChange={setZoom}
+              onZoomStep={step}
+            />,
+            toolbarSlot,
+          )
         : null}
-      <div className="editor-page-wrap">
-        <EditorContent editor={editor} className="editor-content" />
-        <PaginationOverlay pageCount={pageCount} />
-      </div>
+      {/* El contador se porta al header por el mismo motivo que la toolbar:
+          necesita `editor` y no tiene sentido levantarlo al padre. */}
+      {statsSlot ? createPortal(<DocumentStats editor={editor} />, statsSlot) : null}
+      <DocumentSheet editor={editor} scale={scale} />
     </>
   );
 }

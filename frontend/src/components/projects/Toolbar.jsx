@@ -23,6 +23,7 @@ import ColorPicker from "./ColorPicker";
 import FontSizePicker from "./FontSizePicker";
 import MusicPicker from "./MusicPicker";
 import ImagePicker from "./ImagePicker";
+import ZoomPicker from "./ZoomPicker";
 
 function ToolbarButton({ active, disabled, onClick, label, children }) {
   return (
@@ -42,7 +43,7 @@ function ToolbarButton({ active, disabled, onClick, label, children }) {
   );
 }
 
-export default function Toolbar({ editor }) {
+export default function Toolbar({ editor, zoom, onZoomChange, onZoomStep }) {
   // En Tiptap v3 useEditor ya NO re-renderiza en cada transacción:
   // useEditorState es lo que mantiene los estados activos sincronizados.
   const state = useEditorState({
@@ -86,6 +87,16 @@ export default function Toolbar({ editor }) {
   return (
     <div className="editor-toolbar-bar">
       <div className="editor-toolbar" role="toolbar" aria-label="Formato de texto">
+      {/* El zoom no es formato del texto (no toca el documento), pero va acá
+          por costumbre: es el primer control de la barra en Docs/Word. Solo
+          aparece si el que monta la toolbar maneja el zoom. */}
+      {zoom ? (
+        <>
+          <ZoomPicker zoom={zoom} onChange={onZoomChange} onStep={onZoomStep} />
+          <span className="editor-divider" />
+        </>
+      ) : null}
+
       <FontFamilyPicker editor={editor} currentFont={state.fontFamily} />
 
       <span className="editor-divider" />

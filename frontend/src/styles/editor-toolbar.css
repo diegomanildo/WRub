@@ -8,9 +8,10 @@
 
 .editor-toolbar-bar {
   /* Ya no es sticky por su cuenta: ahora vive dentro de .doc-header, que
-     es el que queda pegado arriba. Así se ahorra el espacio que antes
-     ocupaban dos barras separadas (título y toolbar). */
-  padding: 4px 0 10px;
+     es el que queda pegado arriba. Y tampoco tiene línea propia: va en la
+     misma fila que el título y los botones, así que no necesita padding
+     vertical — lo alinea el `align-items: center` de .doc-header-row. */
+  min-width: 0;
 }
 
 .editor-toolbar {
@@ -91,7 +92,10 @@
   width: 1px;
   height: 20px;
   background-color: var(--c-border-strong);
-  margin: 0 6px;
+  /* 4px y no 6: ahora la toolbar comparte renglón con el título y los
+     botones, y esos ~36px (hay nueve divisores) son justo los que le
+     faltaban para entrar en una sola línea en una pantalla de escritorio. */
+  margin: 0 4px;
 }
 
 @media (max-width: 720px) {

@@ -6,6 +6,7 @@ import { TextStyle, Color, FontFamily, FontSize } from "@tiptap/extension-text-s
 import { useEffect, useRef } from "react";
 import MusicParagraph from "./MusicParagraph";
 import ResizableImage from "./ResizableImage";
+import PageBreaks from "./PageBreaks";
 
 /**
  * Crea el editor Tiptap del documento + autoguardado. Se separó de la UI
@@ -33,6 +34,9 @@ export function useDocumentEditor({
   const onSaveRef = useRef(onSave);
   const onDirtyRef = useRef(onDirty);
   const pendingHtmlRef = useRef(null); // último HTML sin guardar
+  // ¿El documento tuvo contenido alguna vez en esta sesión? Arranca en true
+  // si se creó con contenido. Ver el guard de `onUpdate`.
+  const hadContentRef = useRef(Boolean(content && content.trim() !== ""));
 
   useEffect(() => {
     onSaveRef.current = onSave;
@@ -61,6 +65,10 @@ export function useDocumentEditor({
         FontSize,
         ResizableImage.configure({ inline: false, HTMLAttributes: { class: "doc-image" } }),
         TextAlign.configure({ types: ["heading", "paragraph"] }),
+        // Dibuja los cortes de página que calcula `usePagination`. No toca
+        // el documento (son decoraciones), así que el HTML que se guarda es
+        // el mismo con o sin paginado.
+        PageBreaks,
         Placeholder.configure({
           placeholder: placeholder || "Empezá a escribir...",
         }),
@@ -74,6 +82,16 @@ export function useDocumentEditor({
         },
       },
       onUpdate: ({ editor }) => {
+        if (!editor.isEmpty) hadContentRef.current = true;
+
+        // Red de seguridad contra la pérdida de datos: si el editor está
+        // vacío y NUNCA tuvo contenido en esta sesión, lo que hay en pantalla
+        // no es "el usuario borró todo" sino un editor que se montó sin el
+        // documento (contenido que no llegó, un remonte raro del componente).
+        // Guardarlo pisaría el documento entero con un <p></p>. Borrar todo a
+        // mano sí se guarda: ahí el documento tuvo contenido antes.
+        if (editor.isEmpty && !hadContentRef.current) return;
+
         const html = editor.getHTML();
         pendingHtmlRef.current = html;
         onDirtyRef.current?.();

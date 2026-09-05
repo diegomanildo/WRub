@@ -1,7 +1,7 @@
 import { FileText } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { ROUTES } from "../../routes/paths";
-import { formatRelative, formatFull, getUpdatedAt, htmlToText } from "../../utils/format";
+import { formatRelative, formatFull, getUpdatedAt } from "../../utils/format";
 import ProjectMenu from "./ProjectMenu";
 
 function ProjectRow({ project, onDeleteClick = () => {} }) {
@@ -9,7 +9,7 @@ function ProjectRow({ project, onDeleteClick = () => {} }) {
   const open = () => navigate(ROUTES.PROJECT(project.id));
 
   const updatedAt = getUpdatedAt(project);
-  const desc = project.description || htmlToText(project.content).slice(0, 120);
+  const desc = project.description || (project.preview || "").slice(0, 120);
 
   return (
     <div
