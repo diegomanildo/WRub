@@ -137,10 +137,21 @@
   background-color: var(--c-bg-subtle);
   border-top: 1px solid var(--c-border);
   overflow-y: auto;
+  /* Con el zoom al máximo la hoja puede quedar más ancha que la ventana.
+     El scroll horizontal va acá, en el contenedor que YA scrollea: ponerlo
+     más adentro (en .editor-scroll) crearía un segundo contenedor de
+     scroll anidado y le cambiaría el scroller a toda la página. */
+  overflow-x: auto;
 }
 
 @media (max-width: 900px) {
   .topbar-name {
     display: none;
   }
+}
+
+/* Empuja las acciones del final de la topbar (tema) contra el borde
+   derecho, con o sin buscador en el medio. */
+.topbar-spacer {
+  flex: 1;
 }

@@ -1,9 +1,16 @@
 import { createContext, useContext, useState } from "react";
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
-import { FileText, Search, X, Plus } from "lucide-react";
+import { FileText, Search, X, Plus, Sun, Moon, MonitorSmartphone } from "lucide-react";
 import { ROUTES } from "../../routes/paths";
 import { createProject } from "../../services/projects";
 import { useToast } from "../ui/ToastProvider";
+import { useTheme } from "../../hooks/useTheme";
+
+const THEME_OPTIONS = {
+  light: { icon: Sun, label: "Tema claro" },
+  dark: { icon: Moon, label: "Tema oscuro" },
+  system: { icon: MonitorSmartphone, label: "Tema del sistema" },
+};
 
 /* El buscador vive en la topbar pero filtra en la página de proyectos. */
 const SearchContext = createContext({ query: "", setQuery: () => {} });
@@ -15,6 +22,7 @@ function AppLayout() {
   const navigate = useNavigate();
   const location = useLocation();
   const toast = useToast();
+  const { theme, cycleTheme } = useTheme();
 
   const isProjectsView =
     location.pathname === ROUTES.HOME || location.pathname === ROUTES.PROJECTS;
@@ -34,6 +42,9 @@ function AppLayout() {
       setCreating(false);
     }
   }
+
+  const themeOption = THEME_OPTIONS[theme] ?? THEME_OPTIONS.system;
+  const ThemeIcon = themeOption.icon;
 
   return (
     <SearchContext.Provider value={{ query, setQuery }}>
@@ -85,6 +96,18 @@ function AppLayout() {
               )}
             </div>
           )}
+
+          <div className="topbar-spacer" />
+
+          <button
+            type="button"
+            className="icon-btn"
+            onClick={cycleTheme}
+            aria-label={`${themeOption.label}. Cambiar tema`}
+            title={themeOption.label}
+          >
+            <ThemeIcon size={19} />
+          </button>
         </header>
 
         <main className="app-main">
