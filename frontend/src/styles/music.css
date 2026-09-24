@@ -3,15 +3,16 @@
    ========================================================================== */
 .music-paragraph {
   position: relative;
-
-  &.has-music {
-    padding-left: 30px;
-  }
 }
 
+/* El marcador vive en el margen de la hoja (a la izquierda de la caja de
+   texto), no adentro: un párrafo con música tiene que alinear exactamente
+   igual que el resto: antes se le daba `padding-left` y el texto quedaba
+   corrido unos milimetros respecto de los párrafos vecinos. La hoja tiene
+   84px de margen lateral, así que los 30px de afuera entran de sobra. */
 .music-paragraph-marker {
   position: absolute;
-  left: 0;
+  left: -30px;
   top: 0.15em;
   width: 22px;
   height: 22px;
@@ -28,6 +29,18 @@
     background-color: var(--c-primary);
     color: #fff;
     transform: scale(1.08);
+  }
+}
+
+/* En pantallas chicas la hoja pierde el margen lateral (ver editor-sheet.css):
+   ahí el marcador no tiene dónde ponerse afuera y vuelve adentro del párrafo. */
+@media (max-width: 720px) {
+  .music-paragraph.has-music {
+    padding-left: 28px;
+  }
+
+  .music-paragraph-marker {
+    left: 0;
   }
 }
 
