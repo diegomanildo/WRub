@@ -64,7 +64,13 @@ export function useDocumentEditor({
         FontFamily,
         FontSize,
         ResizableImage.configure({ inline: false, HTMLAttributes: { class: "doc-image" } }),
-        TextAlign.configure({ types: ["heading", "paragraph"] }),
+        // listItem y blockquote además de los bloques de texto: sin ellos, en
+        // una lista o una cita el botón de alinear no hacía nada visible
+        // (el <li> seguía marcando la alineación vieja). Ninguno de los dos
+        // tiene NodeView propio, así que el atributo se renderiza solo —
+        // ojo con eso si algún día se les agrega uno, que fue justo el bug
+        // que tenía el párrafo.
+        TextAlign.configure({ types: ["heading", "paragraph", "listItem", "blockquote"] }),
         // Dibuja los cortes de página que calcula `usePagination`. No toca
         // el documento (son decoraciones), así que el HTML que se guarda es
         // el mismo con o sin paginado.
