@@ -1,7 +1,12 @@
 import Paragraph from "@tiptap/extension-paragraph";
 import { ReactNodeViewRenderer } from "@tiptap/react";
 import MusicParagraphView from "./MusicParagraphView";
-import { INDENT_STEP_PX, MAX_INDENT_LEVEL } from "../../utils/indent";
+import {
+  INDENT_STEP_PX,
+  MAX_INDENT_LEVEL,
+  parseFirstLineIndentPx,
+  parseIndentLevel,
+} from "../../utils/indent";
 
 /**
  * Paragraph con atributos de música: asocia una canción (YouTube o archivo
@@ -36,15 +41,30 @@ const MusicParagraph = Paragraph.extend({
       // el estilo aplicado (útil también para la futura exportación a PDF).
       indent: {
         default: 0,
-        parseHTML: (el) => {
-          const value = parseInt(el.getAttribute("data-indent"), 10);
-          return Number.isFinite(value) && value > 0 ? value : 0;
-        },
+        // `parseIndentLevel` lee primero nuestro data-indent y, si no está,
+        // el margin-left inline: eso es lo que hace que al pegar de Google
+        // Docs o Word la sangría se respete en vez de quedar en 0.
+        parseHTML: (el) => parseIndentLevel(el),
         renderHTML: (attrs) => {
           if (!attrs.indent) return {};
           return {
             "data-indent": attrs.indent,
             style: `margin-left: ${attrs.indent * INDENT_STEP_PX}px`,
+          };
+        },
+      },
+      // Sangría de primera línea (`text-indent`), la típica sangría de Docs
+      // al empezar el párrafo. Va aparte del nivel de sangría porque puede
+      // ser negativa (sangría francesa: margin-left positivo + text-indent
+      // negativo) y porque se guarda en px, no en niveles.
+      firstLineIndent: {
+        default: 0,
+        parseHTML: (el) => parseFirstLineIndentPx(el),
+        renderHTML: (attrs) => {
+          if (!attrs.firstLineIndent) return {};
+          return {
+            "data-first-line-indent": attrs.firstLineIndent,
+            style: `text-indent: ${attrs.firstLineIndent}px`,
           };
         },
       },
@@ -113,7 +133,20 @@ const MusicParagraph = Paragraph.extend({
           return false;
         }
 
-        const { indent = 0 } = this.editor.getAttributes(this.name);
+        const { indent = 0, firstLineIndent = 0 } = this.editor.getAttributes(
+          this.name,
+        );
+
+        // La sangría de primera línea (que suele llegar pegada de Docs) se
+        // saca primero: si no, Shift+Tab no tendría forma de quitarla.
+        if (firstLineIndent) {
+          return this.editor
+            .chain()
+            .focus()
+            .updateAttributes(this.name, { firstLineIndent: 0 })
+            .run();
+        }
+
         if (indent <= 0) {
           return true;
         }
@@ -140,7 +173,18 @@ const MusicParagraph = Paragraph.extend({
           return false;
         }
 
-        const { indent = 0 } = this.editor.getAttributes(this.name);
+        const { indent = 0, firstLineIndent = 0 } = this.editor.getAttributes(
+          this.name,
+        );
+
+        if (firstLineIndent) {
+          return this.editor
+            .chain()
+            .focus()
+            .updateAttributes(this.name, { firstLineIndent: 0 })
+            .run();
+        }
+
         if (indent <= 0) {
           return false;
         }
