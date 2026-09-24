@@ -43,8 +43,36 @@
     font-size: 11pt;
     line-height: 1.7;
 
+    /* El hueco entre bloques lo pone UNA sola cosa: el `margin-top` del
+       bloque de abajo. */
     > * + * {
       margin-top: 0.85em;
+    }
+
+    /* ...y por eso se apaga el `margin-bottom` que el reboot de Bootstrap le
+       pone a p/ul/ol/pre/blockquote/h*. No es cosmética: un margin-bottom
+       COLAPSA con el margin-top del bloque siguiente (el hueco real era 16px,
+       no 16 + 12.5), pero deja de colapsar cuando hay un espaciador de corte
+       de página en el medio. O sea: el mismo hueco medía distinto según si
+       ahí había un corte o no, y el paginado se contradecía solo (metía el
+       corte, al medir de nuevo el bloque volvía a entrar, lo sacaba...) —
+       eso era el título que aparecía flotando en el gris entre dos hojas.
+       Sin margin-bottom no hay colapso posible y el hueco vale siempre lo
+       mismo, con corte o sin corte. De paso el hueco entre párrafos pasa a
+       ser el 0.85em de arriba (12.5px) en vez del 1rem del reboot (16px),
+       que es lo que hace que entre por hoja lo mismo que en Google Docs. */
+    p,
+    ul,
+    ol,
+    pre,
+    blockquote,
+    h1,
+    h2,
+    h3,
+    h4,
+    h5,
+    h6 {
+      margin-bottom: 0;
     }
 
     h1,

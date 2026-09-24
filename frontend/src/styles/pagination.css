@@ -59,26 +59,25 @@
   user-select: none;
 }
 
-/* El espaciador que salta el borde entre dos hojas. Los márgenes de acá no
-   son cosmética: computeLayout() da por hecho que un espaciador aporta
-   EXACTAMENTE su alto, ni un píxel más.
-     - `margin: 0` en el espaciador, porque `.ProseMirror > * + *` le pondría
-       0.85em de más;
-     - `margin-top: 0` en el bloque que va justo después, porque ese bloque
-       también es un `* + *` y volvía a sumar 0.85em: el corte quedaba corto
-       y la primera línea de la hoja terminaba flotando ~12px arriba del
-       borde, sobre el gris (la "f en el aire"). El hueco de arriba del
-       espaciador ya lo aporta el margen de abajo del bloque anterior, que
-       es el hueco natural entre los dos. */
+/* El espaciador que salta el borde entre dos hojas. El `margin: 0` no es
+   cosmética: computeLayout() da por hecho que un espaciador aporta
+   EXACTAMENTE su alto, ni un píxel más (sin esto `.ProseMirror > * + *` le
+   pondría 0.85em de más).
+
+   Lo que NO se toca es el margen de arriba del bloque que va justo después:
+   ese hueco tiene que ser el mismo con o sin corte. Antes se lo ponía en 0,
+   y eso rompía la idempotencia de la medición — el hueco natural de un <h1>
+   (1.4em ≈ 37px) pasaba a medirse como 0 apenas se insertaba el corte, con
+   el corte puesto el bloque volvía a entrar en la hoja anterior, el corte se
+   sacaba, el hueco volvía a 37px... y el título terminaba saltando entre una
+   hoja y la otra, dibujado sobre el gris del medio. computeLayout() ya le
+   resta ese hueco al alto del espaciador (`target - flowBottom - gap`), así
+   que el bloque arranca igual justo en el primer renglón de la hoja nueva. */
 .page-break-spacer {
   margin: 0 !important;
   flex: none;
   user-select: none;
   pointer-events: none;
-}
-
-.editor-content .ProseMirror > .page-break-spacer + * {
-  margin-top: 0;
 }
 
 @media (max-width: 720px) {

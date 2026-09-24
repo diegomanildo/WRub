@@ -42,6 +42,11 @@ function buildDecorations(doc, breaks) {
           // cuando el corte se mueve, en vez de reusar el <div> viejo.
           key: `page-break-${brk.pos}-${brk.height}`,
           ignoreSelection: true,
+          // `usePagination` lee esto para saber que cortes hay puestos ahora
+          // mismo (ver liveBreaksKey): compara contra el estado vivo del
+          // editor en vez de contra una copia local que se le podia quedar
+          // vieja cuando ProseMirror mapeaba las decoraciones.
+          height: brk.height,
         },
       ),
     );
