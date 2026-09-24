@@ -48,6 +48,27 @@
   --c-danger-soft: #fce8e6;
   --c-success: #188038;
 
+  /* Superficies y capas que antes estaban hardcodeadas en cada archivo.
+     Se agrupan acá porque todas cambian con el tema: un rgba(60,64,67,.08)
+     de hover no se ve sobre fondo oscuro, y un skeleton gris claro sobre
+     oscuro queda blanco. */
+  --c-hover-overlay: rgba(60, 64, 67, 0.09);
+  /* Halo del marcador de música mientras suena: sigue al acento, que en
+     oscuro es un azul mucho más claro. */
+  --c-primary-glow-30: rgba(26, 115, 232, 0.35);
+  --c-primary-glow-0: rgba(26, 115, 232, 0);
+  --c-surface-raised-hover: #f8fafd;
+  --c-swatch-border: rgba(0, 0, 0, 0.15);
+  --c-skeleton-base: #eceff1;
+  --c-skeleton-sheen: #f5f7f8;
+  --c-code-bg: #202124;
+  --c-code-text: #e8eaed;
+  --c-toast-bg: #202124;
+  --c-toast-text: #e8eaed;
+  --c-toast-muted: #9aa0a6;
+  --c-toast-layer: rgba(255, 255, 255, 0.1);
+  --c-scrim: rgba(32, 33, 36, 0.5);
+
   /* Sombras */
   --sh-1: 0 1px 2px rgba(60, 64, 67, 0.3), 0 1px 3px 1px rgba(60, 64, 67, 0.15);
   --sh-2: 0 1px 3px rgba(60, 64, 67, 0.3), 0 4px 8px 3px rgba(60, 64, 67, 0.15);
@@ -101,6 +122,21 @@
   --c-primary-soft-hover: #34496a;
   --c-primary-text: #adc8fb;
 
+  --c-hover-overlay: rgba(255, 255, 255, 0.09);
+  --c-primary-glow-30: rgba(138, 180, 248, 0.35);
+  --c-primary-glow-0: rgba(138, 180, 248, 0);
+  --c-surface-raised-hover: #2f2f36;
+  --c-swatch-border: rgba(255, 255, 255, 0.28);
+  --c-skeleton-base: #2c2c32;
+  --c-skeleton-sheen: #3a3a41;
+  --c-code-bg: #131316;
+  --c-code-text: #e4e2e6;
+  --c-toast-bg: #33333a;
+  --c-toast-text: #f3f1f5;
+  --c-toast-muted: #b9b7bd;
+  --c-toast-layer: rgba(255, 255, 255, 0.1);
+  --c-scrim: rgba(0, 0, 0, 0.65);
+
   --c-danger: #f2b8b5;
   --c-danger-hover: #f6cecc;
   --c-danger-soft: #4a2320;
@@ -140,6 +176,21 @@
     --c-primary-soft: #29394f;
     --c-primary-soft-hover: #34496a;
     --c-primary-text: #adc8fb;
+
+    --c-hover-overlay: rgba(255, 255, 255, 0.09);
+    --c-primary-glow-30: rgba(138, 180, 248, 0.35);
+    --c-primary-glow-0: rgba(138, 180, 248, 0);
+    --c-surface-raised-hover: #2f2f36;
+    --c-swatch-border: rgba(255, 255, 255, 0.28);
+    --c-skeleton-base: #2c2c32;
+    --c-skeleton-sheen: #3a3a41;
+    --c-code-bg: #131316;
+    --c-code-text: #e4e2e6;
+    --c-toast-bg: #33333a;
+    --c-toast-text: #f3f1f5;
+    --c-toast-muted: #b9b7bd;
+    --c-toast-layer: rgba(255, 255, 255, 0.1);
+    --c-scrim: rgba(0, 0, 0, 0.65);
 
     --c-danger: #f2b8b5;
     --c-danger-hover: #f6cecc;

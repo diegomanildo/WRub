@@ -103,7 +103,7 @@
 }
 
 .project-card:hover {
-  background-color: #f8fafd;
+  background-color: var(--c-surface-raised-hover);
   border-color: var(--c-border-strong);
   box-shadow: var(--sh-soft);
 }
@@ -189,7 +189,7 @@
 }
 
 .icon-btn:hover {
-  background-color: rgba(60, 64, 67, 0.08);
+  background-color: var(--c-hover-overlay);
   color: var(--c-text);
 }
 

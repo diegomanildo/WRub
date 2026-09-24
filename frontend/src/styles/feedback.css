@@ -4,9 +4,9 @@
 .skeleton {
   background: linear-gradient(
     90deg,
-    #eceff1 25%,
-    #f5f7f8 37%,
-    #eceff1 63%
+    var(--c-skeleton-base) 25%,
+    var(--c-skeleton-sheen) 37%,
+    var(--c-skeleton-base) 63%
   );
   background-size: 400% 100%;
   animation: shimmer 1.4s ease-in-out infinite;
@@ -47,8 +47,8 @@
   gap: 12px;
   padding: 13px 16px;
   border-radius: var(--r-md);
-  background-color: #202124;
-  color: #e8eaed;
+  background-color: var(--c-toast-bg);
+  color: var(--c-toast-text);
   font-size: 0.86rem;
   box-shadow: var(--sh-2);
   animation: toast-in 0.2s var(--ease);
@@ -67,7 +67,7 @@
   margin-left: auto;
   border: none;
   background: none;
-  color: #9aa0a6;
+  color: var(--c-toast-muted);
   display: grid;
   place-items: center;
   border-radius: 50%;
@@ -77,15 +77,15 @@
 }
 
 .toast-close:hover {
-  background-color: rgba(255, 255, 255, 0.1);
-  color: #fff;
+  background-color: var(--c-toast-layer);
+  color: var(--c-toast-text);
 }
 
 /* ===== Modal ===== */
 .modal-backdrop-custom {
   position: fixed;
   inset: 0;
-  background-color: rgba(32, 33, 36, 0.5);
+  background-color: var(--c-scrim);
   display: grid;
   place-items: center;
   z-index: 1050;

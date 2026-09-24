@@ -99,7 +99,7 @@
 }
 
 .search-clear:hover {
-  background-color: rgba(60, 64, 67, 0.08);
+  background-color: var(--c-hover-overlay);
 }
 
 /* ----- Contenido ----- */
@@ -122,7 +122,7 @@
 
 .btn-create:hover:not(:disabled) {
   box-shadow: var(--sh-2);
-  background-color: #f8fafd;
+  background-color: var(--c-surface-raised-hover);
 }
 
 .btn-create:disabled {

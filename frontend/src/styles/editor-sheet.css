@@ -128,8 +128,8 @@
     }
 
     pre {
-      background-color: #202124;
-      color: #e8eaed;
+      background-color: var(--c-code-bg);
+      color: var(--c-code-text);
       padding: 14px 16px;
       border-radius: var(--r-md);
       overflow-x: auto;
